@@ -38,15 +38,27 @@ public class FlexiParts : MonoBehaviour {
 #endif
     static extern void flx_set_delta_time(float t);
 
+#if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
+	[DllImport("__Internal")]
+#else
+    [DllImport("libflexiparts")]
+#endif
+    static extern void flx_initialize(System.Int32 particle_qty);
+
     void Awake()
 	{
 		Debug.Log(Marshal.PtrToStringAnsi(flx_get_test_msg()));
         flx_print_msg();
+        flx_initialize(1);
 	}
 
     IEnumerator Start()
     {
         yield return StartCoroutine(CallPluginAtEndOfFrames());
+    }
+
+    void Update()
+    {
     }
 
     IEnumerator CallPluginAtEndOfFrames()

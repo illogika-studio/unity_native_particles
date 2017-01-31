@@ -7,7 +7,7 @@ if (WIN32)
 	include_directories("src")
 
 
-	file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
+	file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c" "src/*.h" "src/*.hpp")
 
 	set(TARGET libflexiparts)
 	add_library(${TARGET} SHARED ${SOURCES})
@@ -19,6 +19,9 @@ if (WIN32)
 #	)
 
 	set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 14)
+	find_package(OpenGL REQUIRED)
+	target_link_libraries(${TARGET} ${OPENGL_LIBRARIES})
+
 	add_custom_command(TARGET ${TARGET} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		$<TARGET_FILE:${TARGET}>
