@@ -4,6 +4,12 @@
 #include <stdio.h>
 //#include <stdlib.h>
 
+const GLfloat test_tri[9] = {
+	-0.5f, -0.5f, 0.f
+	, 0.5f, -0.5f, 0.f
+	, 0.f, 0.5f, 0.f
+};
+
 ParticleManager::ParticleManager(GLsizei qty)
 {
 	if (qty == 0) {
@@ -19,17 +25,19 @@ ParticleManager::ParticleManager(GLsizei qty)
 		return;
 	}
 
+	for (size_t i = 0; i < qty; ++i) {
+		_transforms[i] = Transform{};
+		_triangles[i] = Triangle{};
+	}
 
 	oglGenVertexArrays(1, &vertex_array_id);
 	oglBindVertexArray(vertex_array_id);
 
 	oglGenBuffers(1, &vertex_buffer_id);
 	oglBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_id);
-	oglBufferData(GL_ARRAY_BUFFER, qty * sizeof(Triangle),
-			_triangles, GL_STATIC_DRAW);
-
+	oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
+			test_tri, GL_STATIC_DRAW);
 	oglEnableVertexAttribArray(0);
-	oglBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_id);
 	oglVertexAttribPointer(
 			0,			// Must match the layout in the shader.
 			3,			// size
@@ -38,7 +46,12 @@ ParticleManager::ParticleManager(GLsizei qty)
 			0,			// stride
 			(void*)0	// array buffer offset
 	);
+	oglBindVertexArray(0);
 
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+		printf("OpenGL error: %d", err);
+    }
 	_initialized = true;
 }
 
@@ -60,7 +73,17 @@ void ParticleManager::render()
 	if (!_initialized)
 		return;
 
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_BLEND);
+	glDisable(GL_ALPHA_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
 
-	glDrawArrays(GL_TRIANGLES, GL_POINTS, _qty * 3 * 3);
-	printf("drawing?");
+	//glClearColor(1.f, 0.8f, 0.f, 1.f);
+	//glClear( GL_COLOR_BUFFER_BIT );
+	//glEnableClientState(GL_VERTEX_ARRAY);
+	//glRects(-1,-1,1,1);
+	glDrawArrays(GL_TRIANGLES, GL_POINTS, 9);
 }

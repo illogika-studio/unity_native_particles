@@ -39,13 +39,8 @@ Renderer::Renderer(GLsizei particle_qty)
 		}
 	}
 
-	/* Memory */
+	/* Memory and Particles */
 	{
-		if (particle_qty == 0) {
-			OUTPUT_ERROR("FlexiParts cannot be initialized with 0 particles.\n");
-			return;
-		}
-
 		if (!(_particle_manager = new ParticleManager(particle_qty))) {
 			OUTPUT_ERROR("Couldn't create ParticleManager.\n");
 			return;
