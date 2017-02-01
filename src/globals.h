@@ -1,33 +1,39 @@
 #pragma once
 #include "glext.h"
+#include <stdio.h>
 
-#define OUTPUT_ERROR(...) printf("%s(%d) : %s() : %s\n", __FILE__, __LINE__, __func__, #__VA_ARGS__);
+#define OUTPUT_ERROR(format, ...) printf("%s(%d) : %s() : " format "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
-#define NUMFUNCS 14
+#define NUMFUNCS 19
 const static char* gl_func_names[] = {
 	"glCreateShaderProgramv"
-	,"glGenProgramPipelines"
-	,"glBindProgramPipeline"
-	,"glUseProgramStages"
-	,"glProgramUniform4fv"
-	,"glGetProgramiv"
-	,"glGetProgramInfoLog"
-	,"glGenVertexArrays"
-	,"glBindVertexArray"
-	,"glGenBuffers"
-	,"glBindBuffer"
-	,"glBufferData"
-	,"glVertexAttribPointer"
-	,"glEnableVertexAttribArray"
+	, "glGenProgramPipelines"
+	, "glBindProgramPipeline"
+	, "glUseProgramStages"
+	, "glProgramUniform4fv"
+	, "glGetProgramiv"
+	, "glGetProgramInfoLog"
+	, "glGenVertexArrays"
+	, "glBindVertexArray"
+	, "glGenBuffers"
+	, "glBindBuffer"
+	, "glBufferData"
+	, "glVertexAttribPointer"
+	, "glEnableVertexAttribArray"
+	, "glUseProgram"
+	, "glDisableVertexAttribArray"
+	, "glDeleteVertexArrays"
+	, "glBindFragDataLocation"
+	, "glActiveShaderProgram"
 };
 
  extern void* gl_funcs[NUMFUNCS];
- #define oglCreateShaderProgramv		((PFNGLCREATESHADERPROGRAMVPROC)gl_funcs[0])
+ #define oglCreateShaderProgramv	((PFNGLCREATESHADERPROGRAMVPROC)gl_funcs[0])
  #define oglGenProgramPipelines		((PFNGLGENPROGRAMPIPELINESPROC)gl_funcs[1])
  #define oglBindProgramPipeline		((PFNGLBINDPROGRAMPIPELINEPROC)gl_funcs[2])
- #define oglUseProgramStages			((PFNGLUSEPROGRAMSTAGESPROC)gl_funcs[3])
+ #define oglUseProgramStages		((PFNGLUSEPROGRAMSTAGESPROC)gl_funcs[3])
  #define oglProgramUniform4fv		((PFNGLPROGRAMUNIFORM4FVPROC)gl_funcs[4])
- #define oglGetProgramiv				((PFNGLGETPROGRAMIVPROC)gl_funcs[5])
+ #define oglGetProgramiv			((PFNGLGETPROGRAMIVPROC)gl_funcs[5])
  #define oglGetProgramInfoLog		((PFNGLGETPROGRAMINFOLOGPROC)gl_funcs[6])
  #define oglGenVertexArrays			((PFNGLGENVERTEXARRAYSPROC)gl_funcs[7])
  #define oglBindVertexArray			((PFNGLBINDVERTEXARRAYPROC)gl_funcs[8])
@@ -36,20 +42,21 @@ const static char* gl_func_names[] = {
  #define oglBufferData				((PFNGLBUFFERDATAPROC)gl_funcs[11])
  #define oglVertexAttribPointer		((PFNGLVERTEXATTRIBPOINTERPROC)gl_funcs[12])
  #define oglEnableVertexAttribArray	((PFNGLENABLEVERTEXATTRIBARRAYPROC)gl_funcs[13])
+ #define oglUseProgram				((PFNGLUSEPROGRAMPROC)gl_funcs[14])
+ #define oglDisableVertexAttribArray ((PFNGLDISABLEVERTEXATTRIBARRAYPROC)gl_funcs[15])
+ #define oglDeleteVertexArrays		((PFNGLDELETEVERTEXARRAYSPROC)gl_funcs[16])
+ #define oglBindFragDataLocation	((PFNGLBINDFRAGDATALOCATIONPROC)gl_funcs[17])
+ #define oglActiveShaderProgram		((PFNGLACTIVESHADERPROGRAMPROC)gl_funcs[18])
 
 
-//#define oglCreateShaderProgramv		((PFNGLCREATESHADERPROGRAMVPROC)wglGetProcAddress("glCreateShaderProgramv"))
-//#define oglGenProgramPipelines		((PFNGLGENPROGRAMPIPELINESPROC)wglGetProcAddress("glGenProgramPipelines"))
-//#define oglBindProgramPipeline		((PFNGLBINDPROGRAMPIPELINEPROC)wglGetProcAddress("glBindProgramPipeline"))
-//#define oglUseProgramStages			((PFNGLUSEPROGRAMSTAGESPROC)wglGetProcAddress("glUseProgramStages"))
-//#define oglProgramUniform4fv		((PFNGLPROGRAMUNIFORM4FVPROC)wglGetProcAddress("glProgramUniform4fv"))
-//#define oglGetProgramiv				((PFNGLGETPROGRAMIVPROC)wglGetProcAddress("glGetProgramiv"))
-//#define oglGetProgramInfoLog		((PFNGLGETPROGRAMINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog"))
-//#define oglGenVertexArrays			((PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays"))
-//#define oglBindVertexArray			((PFNGLBINDVERTEXARRAYPROC)wglGetProcAddress("glBindVertexArray"))
-//#define oglGenBuffers				((PFNGLGENBUFFERSPROC)wglGetProcAddress("glGenBuffers"))
-//#define oglBindBuffer				((PFNGLBINDBUFFERPROC)wglGetProcAddress("glBindBuffer"))
-//#define oglBufferData				((PFNGLBUFFERDATAPROC)wglGetProcAddress("glBufferData"))
-//#define oglVertexAttribPointer		((PFNGLVERTEXATTRIBPOINTERPROC)wglGetProcAddress("glVertexAttribPointer"))
-//#define oglEnableVertexAttribArray	((PFNGLENABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glEnableVertexAttribArray"))
+static bool gl_has_error() {
+	bool ret = false;
+
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR) {
+		OUTPUT_ERROR("OpenGL error: %d", err);
+		ret = true;
+	}
+	return ret;
+}
 

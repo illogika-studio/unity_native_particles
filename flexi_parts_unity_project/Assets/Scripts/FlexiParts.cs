@@ -47,8 +47,8 @@ public class FlexiParts : MonoBehaviour {
 
     void Awake()
 	{
-		Debug.Log(Marshal.PtrToStringAnsi(flx_get_test_msg()));
-        flx_print_msg();
+		//Debug.Log(Marshal.PtrToStringAnsi(flx_get_test_msg()));
+  //      flx_print_msg();
         flx_initialize(1);
 	}
 

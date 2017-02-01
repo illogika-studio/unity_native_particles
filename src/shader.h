@@ -1,7 +1,7 @@
 #define CODE(...) #__VA_ARGS__
 
 const static char* vert_shader_src = CODE(
-	#version 450 core\n
+	#version 430 core\n
 	layout (location = 0) in vec3 position;
 
 	out gl_PerVertex {
@@ -14,11 +14,11 @@ const static char* vert_shader_src = CODE(
 );
 
 const static char* frag_shader_src = CODE(
-	#version 450 core\n
-	out vec4 color;
+	#version 430 core\n
+	out vec4 fragColor;
 
 	void main() {
-		color = vec4(1.0, 0.5, 0.2, 1.0);
+		fragColor = vec4(1.0, 0.5, 0.2, 1.0);
 	}\0;
 );
 

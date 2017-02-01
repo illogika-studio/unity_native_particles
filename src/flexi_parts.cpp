@@ -16,6 +16,7 @@ int particle_qty = 1;
 bool disable_flx = false;
 float time = 0.f;
 float delta_time = 0.f;
+FILE* stream;
 
 struct UnityPointers {
 	IUnityInterfaces* interfaces = nullptr;
@@ -38,7 +39,7 @@ FP(void) UnityPluginLoad(IUnityInterfaces* unity_interfaces)
     on_graphics_device_event(kUnityGfxDeviceEventInitialize);
 
 	AllocConsole();
-	freopen("CONOUT$", "w", stdout);
+	freopen_s(&stream, "CONOUT$", "w", stdout);
 
 	if (!(renderer = new Renderer(static_cast<GLsizei>(particle_qty)))) {
 		OUTPUT_ERROR("Problem constructing renderer. FlexiParts disabled until reload.\n");

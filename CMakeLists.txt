@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.6)
 project(flexiparts)
 
 if (WIN32)
@@ -19,6 +19,7 @@ if (WIN32)
 #	)
 
 	set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 14)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET})
 	find_package(OpenGL REQUIRED)
 	target_link_libraries(${TARGET} ${OPENGL_LIBRARIES})
 
