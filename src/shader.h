@@ -2,23 +2,28 @@
 
 const static char* vert_shader_src = CODE(
 	#version 430 core\n
-	layout (location = 0) in vec3 position;
+	layout (location = 0) in vec3 pos;
+
+	uniform mat4 modelmat;
+	uniform mat4 viewmat;
+	uniform mat4 projmat;
 
 	out gl_PerVertex {
 		vec4 gl_Position;
 	};
 
 	void main() {
-		gl_Position = vec4(position.x, position.y, position.z, 1.0);
+		vec4 p = vec4(10.f, 10.f, 10.f, 1.f);
+		gl_Position = projmat * viewmat * modelmat * p;
 	}\0
 );
 
 const static char* frag_shader_src = CODE(
 	#version 430 core\n
-	out vec4 fragColor;
+	out vec4 color;
 
 	void main() {
-		fragColor = vec4(1.0, 0.5, 0.2, 1.0);
-	}\0;
+		color = vec4(0.86, 0.62, 0.86, 1.0);
+	}\0
 );
 

@@ -12,10 +12,11 @@
 static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType event_type);
 
 Renderer* renderer = nullptr;
-int particle_qty = 1;
+int particle_qty = 1000;
 bool disable_flx = false;
 float time = 0.f;
 float delta_time = 0.f;
+
 FILE* stream;
 
 struct UnityPointers {
@@ -139,5 +140,13 @@ FP(void) flx_initialize(int32_t particle_qty)
 		OUTPUT_ERROR("Changing particle quantity after initialization is not yet supported.\n");
 	}
 
+}
+
+FP(void) flx_set_mvp(GLfloat model[16], GLfloat view[16], GLfloat projection[16])
+{
+	if (renderer == nullptr)
+		return;
+
+	renderer->mvp(model, view, projection);
 }
 

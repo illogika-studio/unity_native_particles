@@ -4,7 +4,7 @@
 
 #define OUTPUT_ERROR(format, ...) printf("%s(%d) : %s() : " format "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
-#define NUMFUNCS 19
+#define NUMFUNCS 22
 const static char* gl_func_names[] = {
 	"glCreateShaderProgramv"
 	, "glGenProgramPipelines"
@@ -25,6 +25,9 @@ const static char* gl_func_names[] = {
 	, "glDeleteVertexArrays"
 	, "glBindFragDataLocation"
 	, "glActiveShaderProgram"
+	, "glGetUniformLocation"
+	, "glProgramUniformMatrix4fv"
+	, "glProgramUniformMatrix3fv"
 };
 
  extern void* gl_funcs[NUMFUNCS];
@@ -47,9 +50,14 @@ const static char* gl_func_names[] = {
  #define oglDeleteVertexArrays		((PFNGLDELETEVERTEXARRAYSPROC)gl_funcs[16])
  #define oglBindFragDataLocation	((PFNGLBINDFRAGDATALOCATIONPROC)gl_funcs[17])
  #define oglActiveShaderProgram		((PFNGLACTIVESHADERPROGRAMPROC)gl_funcs[18])
+ #define oglGetUniformLocation		((PFNGLGETUNIFORMLOCATIONPROC)gl_funcs[19])
+ #define oglProgramUniformMatrix4fv	((PFNGLPROGRAMUNIFORMMATRIX4FVPROC)gl_funcs[20])
+ #define oglProgramUniformMatrix3fv	((PFNGLPROGRAMUNIFORMMATRIX3FVPROC)gl_funcs[21])
 
 
-static bool gl_has_error() {
+
+
+static inline bool gl_has_error() {
 	bool ret = false;
 
 	GLenum err;
