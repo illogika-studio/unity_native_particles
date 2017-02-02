@@ -12,7 +12,7 @@
 static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType event_type);
 
 Renderer* renderer = nullptr;
-int particle_qty = 1000;
+int particle_qty = 10000;
 bool disable_flx = false;
 float time = 0.f;
 float delta_time = 0.f;
@@ -112,6 +112,7 @@ static void UNITY_INTERFACE_API on_render_event(int eventId) {
 	if (disable_flx)
 		return;
 
+	renderer->update(time, delta_time);
 	renderer->render(time, delta_time);
 }
 
@@ -147,14 +148,5 @@ FP(void) flx_set_mvp(GLfloat model[16], GLfloat view[16], GLfloat projection[16]
 		return;
 
 	renderer->mvp(model, view, projection);
-	//for (int i = 0; i < 16; ++i) {
-	//	printf("%f ", model[i]);
-	//} printf("\n");
-	//for (int i = 0; i < 16; ++i) {
-	//	printf("%f ", view[i]);
-	//} printf("\n");
-	//for (int i = 0; i < 16; ++i) {
-	//	printf("%f ", projection[i]);
-	//} printf("\n");
 }
 

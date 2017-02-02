@@ -3,6 +3,7 @@
 #include "globals.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 void* gl_funcs[NUMFUNCS];
 
@@ -31,24 +32,15 @@ Renderer::Renderer(GLsizei particle_qty) {
 		OUTPUT_ERROR("Could not get OpenGL functions.\n");
 		return;
 	}
-	_particle_qty = particle_qty;
-	_data = new ParticleData(_particle_qty);
+	_data = new ParticleData(particle_qty);
 	_initialized = true;
 }
 
 Renderer::~Renderer() {
-	_particle_qty = 0;
-
-	//if (_transforms) {
-	//	free(_transforms);
-	//	_transforms = nullptr;
-	//}
-	//if (_triangles) {
-	//	free(_triangles);
-	//	_triangles = nullptr;
-	//}
-
-
+	if (_data) {
+		delete _data;
+		_data = nullptr;
+	}
 }
 
 void Renderer::init_opengl() {
@@ -125,9 +117,6 @@ void Renderer::init_opengl() {
 		return;
 	}
 
-	//_transform_mat_id = oglGetUniformLocation(_pipeline_id, "transform");
-	//if (_transform_mat_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
-
 	_model_uniform_id = oglGetUniformLocation(_pipeline_id, "model_mat");
 	if (_model_uniform_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
 
@@ -136,6 +125,9 @@ void Renderer::init_opengl() {
 
 	_projection_uniform_id = oglGetUniformLocation(_pipeline_id, "proj_mat");
 	if (_projection_uniform_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
+
+	_transform_uniform_id = oglGetUniformLocation(_pipeline_id, "transform_mat");
+	if (_transform_uniform_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
 
 	_time_uniform_id = oglGetUniformLocation(_pipeline_id, "time");
 	if (_time_uniform_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
@@ -176,54 +168,84 @@ void Renderer::detroy_opengl() {
 	oglDeleteProgram(_pipeline_id);
 }
 
+void Renderer::update(float time, float delta_time) {
+	float r, r_neg;
+	for (int i = 0; i < _data->size; ++i) {
+		srand(i);
+		r = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
+		r_neg = r - 0.5f;
+
+		//_data->pos[i].x += 0.1f * _velocity * r_neg;
+		_data->pos[i].y += (static_cast<float>(i) * 0.001f) * delta_time;
+		//_data->pos[i].z += 0.1f * _velocity * r_neg;
+	}
+	//for (int i = 0; i < _data->size; ++i) {
+ //		_data->rot[i].x, _data->rot[i].y, _data->rot[i].z
+	//}
+	//for (int i = 0; i < _data->size; ++i) {
+	//	_data->scale[i].x += delta_time * 0.01f;
+	//	_data->scale[i].y += delta_time * 0.01f;
+	//	//_data->print(i);
+	//}
+}
+
 void Renderer::render(float time, float delta_time) {
-	if (!_initialized)
-		return;
-
-	/* Clear previous prog. */
-	//oglUseProgram(0);
-
 	/* Basic render state. */
 	glDisable(GL_CULL_FACE);
-	glDisable(GL_BLEND);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE_MINUS_DST_ALPHA,GL_DST_ALPHA);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
 
 	oglUseProgram(_pipeline_id);
-	//oglBindProgramPipeline(_pipeline_id);
-	GL_CHECK_ERROR();
-	//oglProgramUniformMatrix4fv(_vert_shader_id, _model_mat_id, 1, GL_FALSE, _model_mat);
-	//oglProgramUniformMatrix4fv(_vert_shader_id, _view_mat_id, 1, GL_FALSE, _view_mat);
-	//oglProgramUniformMatrix4fv(_vert_shader_id, _projection_mat_id, 1, GL_FALSE, _projection_mat);
-	//oglProgramUniformMatrix3fv(_vert_shader_id, _transform_mat_id, 1, GL_FALSE, todo);
 	oglUniformMatrix4fv(_model_uniform_id, 1, GL_FALSE, _model_mat);
 	oglUniformMatrix4fv(_view_uniform_id, 1, GL_FALSE, _view_mat);
 	oglUniformMatrix4fv(_projection_uniform_id, 1, GL_FALSE, _projection_mat);
-	//oglUniformMatrix3fv(_transform_mat_id, 1, GL_FALSE, todo);
 	oglUniform1f(_time_uniform_id, time);
-	//GL_CHECK_ERROR();
 
-	/* VAO */
-	oglGenVertexArrays(1, &_vertex_array_id);
-	oglBindVertexArray(_vertex_array_id);
+	for (int i = 0; i < _data->size; ++i) {
+		//_data->print(i);
+		GLfloat t[16] = {
+			_data->pos[i].x, _data->pos[i].y, _data->pos[i].z
+ 			, _data->rot[i].x, _data->rot[i].y, _data->rot[i].z
+			, _data->scale[i].x, _data->scale[i].y, _data->scale[i].z
+		};
+		oglUniformMatrix3fv(_transform_uniform_id, 1, GL_FALSE, t);
 
-	/* VBO */
-	oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
-	oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
-			test_tri, GL_STATIC_DRAW);
+		/* VAO */
+		oglGenVertexArrays(1, &_vertex_array_id);
+		oglBindVertexArray(_vertex_array_id);
 
-	oglEnableVertexAttribArray(0);
-	oglVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
-	glDrawArrays(GL_TRIANGLES, GL_POINTS, 3);
-	oglDisableVertexAttribArray(0);
-	oglDeleteVertexArrays(1, &_vertex_array_id);
-	oglBindVertexArray(0);
-	//oglUseProgram(0);
+		/* VBO */
+		oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
+		oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
+				test_tri, GL_STATIC_DRAW);
 
-	//oglBindProgramPipeline(0);
+		oglEnableVertexAttribArray(0);
+		oglVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+		glDrawArrays(GL_TRIANGLES, GL_POINTS, 3);
+		oglDisableVertexAttribArray(0);
+		oglDeleteVertexArrays(1, &_vertex_array_id);
+		oglBindVertexArray(0);
+	}
+
+	///* VAO */
+	//oglGenVertexArrays(1, &_vertex_array_id);
+	//oglBindVertexArray(_vertex_array_id);
+
+	///* VBO */
+	//oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
+	//oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
+	//		test_tri, GL_STATIC_DRAW);
+
+	//oglEnableVertexAttribArray(0);
+	//oglVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+	//glDrawArrays(GL_TRIANGLES, GL_POINTS, 3);
+	//oglDisableVertexAttribArray(0);
+	//oglDeleteVertexArrays(1, &_vertex_array_id);
+	//oglBindVertexArray(0);
 	GL_CHECK_ERROR();
-
 }
 
 int Renderer::init_gl_funcs() {
