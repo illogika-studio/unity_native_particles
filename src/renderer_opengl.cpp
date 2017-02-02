@@ -36,18 +36,30 @@ Renderer::Renderer(GLsizei particle_qty)
 			OUTPUT_ERROR("Could not get OpenGL functions.\n");
 			return;
 		}
-		OUTPUT_ERROR("OpenGL supported versions :\n%s", glGetString(GL_VERSION));
-		OUTPUT_ERROR("OpenGL supported extensions :\n%s", glGetString(GL_EXTENSIONS));
-
-		oglUseProgram(0);
+		OUTPUT_MSG("OpenGL version : %s", glGetString(GL_VERSION));
+		//OUTPUT_MSG("OpenGL supported extensions :\n%s", glGetString(GL_EXTENSIONS));
+		{
+			char err[256] = "";
+			gl_error_string(err);
+			if (strlen(err) != 0) {
+				OUTPUT_ERROR("OpenGL error : %s", err);
+				return;
+			}
+		}
 
 		_vert_shader_id = oglCreateShaderProgramv(GL_VERTEX_SHADER, 1,
 				&vert_shader_src);
 		_frag_shader_id = oglCreateShaderProgramv(GL_FRAGMENT_SHADER, 1,
 				&frag_shader_src);
 
-		//oglBindFragDataLocation(_frag_shader_id, 0, "fragColor");
-		gl_has_error();
+		{
+			char err[256] = "";
+			gl_error_string(err);
+			if (strlen(err) != 0) {
+				OUTPUT_ERROR("OpenGL error : %s", err);
+				return;
+			}
+		}
 
 		oglGenProgramPipelines(1, &_pipeline_id);
 		oglBindProgramPipeline(_pipeline_id);
@@ -55,26 +67,25 @@ Renderer::Renderer(GLsizei particle_qty)
 		oglUseProgramStages(_pipeline_id, GL_FRAGMENT_SHADER_BIT, _frag_shader_id);
 
 		int was_init = 1;
-		was_init *= gl_was_initialized(_vert_shader_id);
-		was_init *= gl_was_initialized(_frag_shader_id);
-		was_init *= gl_was_initialized(_pipeline_id);
+		was_init *= gl_program_was_initialized(_vert_shader_id);
+		was_init *= gl_program_was_initialized(_frag_shader_id);
+		was_init *= gl_program_was_initialized(_pipeline_id);
 
 		if (!was_init) {
 			OUTPUT_ERROR("Problem initializing OpenGL. Will not render anything.\n");
 			return;
 		}
-		//oglActiveShaderProgram(_pipeline_id, _vert_shader_id);
 		
 		//_transform_mat_id = oglGetUniformLocation(_pipeline_id, "transform");
 		//if (_transform_mat_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
 
-		_model_mat_id = oglGetUniformLocation(_vert_shader_id, "modelmat");
+		_model_mat_id = oglGetUniformLocation(_vert_shader_id, "model_mat");
 		if (_model_mat_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
 
-		_view_mat_id = oglGetUniformLocation(_vert_shader_id, "viewmat");
+		_view_mat_id = oglGetUniformLocation(_vert_shader_id, "view_mat");
 		if (_view_mat_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
 
-		_projection_mat_id = oglGetUniformLocation(_vert_shader_id, "projmat");
+		_projection_mat_id = oglGetUniformLocation(_vert_shader_id, "proj_mat");
 		if (_projection_mat_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
 	}
 
@@ -90,7 +101,6 @@ Renderer::Renderer(GLsizei particle_qty)
 		oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
 				test_tri, GL_STATIC_DRAW);
 
-		oglEnableVertexAttribArray(0);
 		oglVertexAttribPointer(
 				0,			// Must match the layout in the shader.
 				3,			// size
@@ -99,9 +109,16 @@ Renderer::Renderer(GLsizei particle_qty)
 				3 * sizeof(GLfloat),			// stride
 				(void*)0	// array buffer offset
 		);
+		/* Cleanup */
+		oglEnableVertexAttribArray(0);
+		oglBindVertexArray(0);
 
-		if (gl_has_error())
+		char err[256] = "";
+		gl_error_string(err);
+		if (strlen(err) != 0) {
+			OUTPUT_ERROR("OpenGL error : %s", err);
 			return;
+		}
 
 	}
 
@@ -127,9 +144,6 @@ void Renderer::render(float dt)
 	if (!_initialized)
 		return;
 
-	oglUseProgram(0);
-	oglBindProgramPipeline(0);
-
 	/* Basic render state. */
 	//glDisable(GL_CULL_FACE);
 	//glDisable(GL_BLEND);
@@ -138,32 +152,56 @@ void Renderer::render(float dt)
 	//glDepthMask(GL_FALSE);
 
 
-	OUTPUT_ERROR("pipeline name : %d", _pipeline_id);
-	gl_was_initialized(_pipeline_id);
 	oglBindProgramPipeline(_pipeline_id);
+	{
+		char err[256] = "";
+		gl_error_string(err);
+		if (strlen(err) != 0) {
+			OUTPUT_ERROR("OpenGL error : %s", err);
+			return;
+		}
+	}
 	oglProgramUniformMatrix4fv(_vert_shader_id, _model_mat_id, 1, GL_FALSE, _model_mat);
 	oglProgramUniformMatrix4fv(_vert_shader_id, _view_mat_id, 1, GL_FALSE, _view_mat);
 	oglProgramUniformMatrix4fv(_vert_shader_id, _projection_mat_id, 1, GL_FALSE, _projection_mat);
+	//oglProgramUniformMatrix3fv(_vert_shader_id, _transform_mat_id, 1, GL_FALSE, todo);
 	//oglUseProgram(_pipeline_id);
 	//oglUseProgram(_vert_shader_id);
 	//oglUseProgram(_frag_shader_id);
 
-	//oglUniformMatrix3fv(_transform_mat_id, 1, GL_FALSE, todo);
+	{
+		char err[256] = "";
+		gl_error_string(err);
+		if (strlen(err) != 0) {
+			OUTPUT_ERROR("OpenGL error : %s", err);
+			return;
+		}
+	}
 
 	/* VAO */
-	oglGenVertexArrays(1, &_vertex_array_id);
+	//oglGenVertexArrays(1, &_vertex_array_id);
 	oglBindVertexArray(_vertex_array_id);
 
-	/* Vertex Buffer */
-	oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
+	/* VBO */
+	//oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
 	//oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
 			//test_tri, GL_STATIC_DRAW);
 
-	oglEnableVertexAttribArray(0);
-	oglVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+	//oglEnableVertexAttribArray(0);
+	//oglVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
 	glDrawArrays(GL_TRIANGLES, GL_POINTS, 3);
-	oglDisableVertexAttribArray(0);
-	oglDeleteVertexArrays(1, &_vertex_array_id);
+	//oglDisableVertexAttribArray(0);
+	//oglDeleteVertexArrays(1, &_vertex_array_id);
+	oglBindVertexArray(0);
+	oglBindProgramPipeline(0);
+	{
+		char err[256] = "";
+		gl_error_string(err);
+		if (strlen(err) != 0) {
+			OUTPUT_ERROR("OpenGL error : %s", err);
+			return;
+		}
+	}
 
 }
 
@@ -177,17 +215,5 @@ int Renderer::init_gl_funcs()
 		}
 	}
 	return 1;
-}
-
-int Renderer::gl_was_initialized(int id)
-{
-	int result;
-	char info[1536];
-	oglGetProgramiv(id, GL_LINK_STATUS, &result);
-	oglGetProgramInfoLog(id, 1024, nullptr, (char *)info);
-	if(!result) {
-		OUTPUT_ERROR("OpenGL initialization error : %s\n", info);
-	}
-	return result;
 }
 

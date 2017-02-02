@@ -1,25 +1,25 @@
 #define CODE(...) #__VA_ARGS__
 
 const static char* vert_shader_src = CODE(
-	#version 430 core\n
+	#version 450 core\n
 	layout (location = 0) in vec3 pos;
 
-	uniform mat4 modelmat;
-	uniform mat4 viewmat;
-	uniform mat4 projmat;
+	uniform mat4 model_mat;
+	uniform mat4 view_mat;
+	uniform mat4 proj_mat;
 
 	out gl_PerVertex {
 		vec4 gl_Position;
 	};
 
 	void main() {
-		vec4 p = vec4(10.f, 10.f, 10.f, 1.f);
-		gl_Position = projmat * viewmat * modelmat * p;
+		vec4 p = vec4(2.f, 1.f, -1.f, 1.f);
+		gl_Position = proj_mat * view_mat * model_mat * p;
 	}\0
 );
 
 const static char* frag_shader_src = CODE(
-	#version 430 core\n
+	#version 450 core\n
 	out vec4 color;
 
 	void main() {

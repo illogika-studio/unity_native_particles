@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #define OUTPUT_ERROR(format, ...) printf("%s(%d) : %s() : " format "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#define OUTPUT_MSG(format, ...) printf("" format "\n", ##__VA_ARGS__)
 
 #define NUMFUNCS 22
 const static char* gl_func_names[] = {
@@ -54,17 +55,37 @@ const static char* gl_func_names[] = {
  #define oglProgramUniformMatrix4fv	((PFNGLPROGRAMUNIFORMMATRIX4FVPROC)gl_funcs[20])
  #define oglProgramUniformMatrix3fv	((PFNGLPROGRAMUNIFORMMATRIX3FVPROC)gl_funcs[21])
 
+static inline int gl_program_was_initialized(int id)
+{
+	int result;
+	char info[1536];
+	oglGetProgramiv(id, GL_LINK_STATUS, &result);
+	oglGetProgramInfoLog(id, 1024, nullptr, (char *)info);
+	if(!result) {
+		OUTPUT_ERROR("OpenGL initialization error : %s\n", info);
+	}
+	return result;
+}
 
 
+static inline const char * _gl_get_err_string(GLenum type) {
+	switch(type) {
+		case GL_NO_ERROR: return "GL_NO_ERROR ";
+		case GL_INVALID_ENUM: return "GL_INVALID_ENUM ";
+		case GL_INVALID_VALUE: return "GL_INVALID_VALUE ";
+		case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION ";
+		case GL_INVALID_FRAMEBUFFER_OPERATION: return "GL_INVALID_FRAMEBUFFER_OPERATION ";
+		case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY ";
+		case GL_STACK_UNDERFLOW: return "GL_STACK_UNDERFLOW "; // Until OpenGL 4.2
+		case GL_STACK_OVERFLOW: return "GL_STACK_OVERFLOW "; // Until OpenGL 4.2
+		default: return "invalid error number ";
+	}
+}
 
-static inline bool gl_has_error() {
-	bool ret = false;
-
+static inline void gl_error_string(char* msg) {
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR) {
-		OUTPUT_ERROR("OpenGL error: %d", err);
-		ret = true;
+		strcat_s(msg, 256, _gl_get_err_string(err));
 	}
-	return ret;
 }
 

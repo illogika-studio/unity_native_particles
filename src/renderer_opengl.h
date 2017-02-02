@@ -94,7 +94,6 @@ public:
 
 private:
 	inline int init_gl_funcs();
-	inline int gl_was_initialized(int id);
 
 	bool _initialized = false;
 	GLsizei _particle_qty = 0;
