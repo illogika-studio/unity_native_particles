@@ -83,26 +83,29 @@ public:
 	Renderer(GLsizei particle_qty);
 	~Renderer();
 
-	void mvp(float m[16], float v[16], float p[16]) {
-		memcpy(_model_mat, m, sizeof(float) * 16);
-		memcpy(_view_mat, v, sizeof(float) * 16);
-		memcpy(_projection_mat, p, sizeof(float) * 16);
+	void init_opengl();
+	void detroy_opengl();
 
-		for (int i = 0; i < 16; ++i) {
-			printf("%f ", _model_mat[i]);
-		} printf("\n");
-		for (int i = 0; i < 16; ++i) {
-			printf("%f ", _view_mat[i]);
-		} printf("\n");
-		for (int i = 0; i < 16; ++i) {
-			printf("%f ", _projection_mat[i]);
-		} printf("\n");
+	void mvp(GLfloat m[16], GLfloat v[16], GLfloat p[16]) {
+		memcpy(_model_mat, m, sizeof(GLfloat) * 16);
+		memcpy(_view_mat, v, sizeof(GLfloat) * 16);
+		memcpy(_projection_mat, p, sizeof(GLfloat) * 16);
+
+		//for (int i = 0; i < 16; ++i) {
+		//	printf("%f ", _model_mat[i]);
+		//} printf("\n");
+		//for (int i = 0; i < 16; ++i) {
+		//	printf("%f ", _view_mat[i]);
+		//} printf("\n");
+		//for (int i = 0; i < 16; ++i) {
+		//	printf("%f ", _projection_mat[i]);
+		//} printf("\n");
 
 		//_model_mat = m;
 		//_view_mat = v;
 		//_projection_mat = p;
 	}
-	void render(float dt);
+	void render(float time, float delta_time);
 
 private:
 	inline int init_gl_funcs();
@@ -118,12 +121,13 @@ private:
 	GLuint _frag_shader_id = 0;
 	GLuint _vertex_array_id = 0;
 	GLuint _vertex_buffer_id = 0;
-	GLint _transform_mat_id = 0;
-	GLint _model_mat_id = 0;
-	GLint _view_mat_id = 0;
-	GLint _projection_mat_id = 0;
+	GLint _transform_uniform_id = 0;
+	GLint _model_uniform_id = 0;
+	GLint _view_uniform_id = 0;
+	GLint _projection_uniform_id = 0;
+	GLint _time_uniform_id = 0;
 
-	GLfloat _model_mat[16];
-	GLfloat _view_mat[16];
-	GLfloat _projection_mat[16];
+	GLfloat _model_mat[16] = {};
+	GLfloat _view_mat[16] = {};
+	GLfloat _projection_mat[16] = {};
 };

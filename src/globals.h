@@ -5,7 +5,15 @@
 #define OUTPUT_ERROR(format, ...) printf("%s(%d) : %s() : " format "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #define OUTPUT_MSG(format, ...) printf("" format "\n", ##__VA_ARGS__)
 
-#define NUMFUNCS 31
+#define GL_CHECK_ERROR() 	{ \
+	char err[256] = ""; \
+	gl_error_string(err); \
+	if (strlen(err) != 0) { \
+		OUTPUT_ERROR("OpenGL error : %s", err); \
+	} \
+}
+
+#define NUMFUNCS 38
 const static char* gl_func_names[] = {
 	"glCreateShaderProgramv"
 	, "glGenProgramPipelines"
@@ -40,6 +48,11 @@ const static char* gl_func_names[] = {
 	, "glGetShaderInfoLog"
 	, "glUniformMatrix4fv"
 	, "glUniformMatrix3fv"
+	, "glDeleteBuffers"
+	, "glDetachShader"
+	, "glDeleteShader"
+	, "glDeleteProgram"
+	, "glUniform1f"
 };
 
 extern void* gl_funcs[NUMFUNCS];
@@ -76,6 +89,11 @@ extern void* gl_funcs[NUMFUNCS];
 #define oglGetShaderInfoLog			((PFNGLGETSHADERINFOLOGPROC)gl_funcs[30])
 #define oglUniformMatrix4fv			((PFNGLUNIFORMMATRIX4FVPROC)gl_funcs[31])
 #define oglUniformMatrix3fv			((PFNGLUNIFORMMATRIX3FVPROC)gl_funcs[32])
+#define oglDeleteBuffers			((PFNGLDELETEBUFFERSPROC)gl_funcs[33])
+#define oglDetachShader				((PFNGLDETACHSHADERPROC)gl_funcs[34])
+#define oglDeleteShader				((PFNGLDELETESHADERPROC)gl_funcs[35])
+#define oglDeleteProgram			((PFNGLDELETEPROGRAMPROC)gl_funcs[36])
+#define oglUniform1f				((PFNGLUNIFORM1FPROC)gl_funcs[37])
 
 static inline int gl_program_was_linked(int id) {
 	int result;

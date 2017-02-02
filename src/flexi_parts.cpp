@@ -32,19 +32,20 @@ FP(void) UnityPluginLoad(IUnityInterfaces* unity_interfaces) {
 	unity.graphics = unity.interfaces->Get<IUnityGraphics>();
 	unity.graphics->RegisterDeviceEventCallback(on_graphics_device_event);
 
-	/**
-	 * Run OnGraphicsDeviceEvent(initialize) manually on plugin load
-	 * to not miss the event in case the graphics device is already initialized
-	 */
-	on_graphics_device_event(kUnityGfxDeviceEventInitialize);
-
 	AllocConsole();
+	SetConsoleTitle("FlexiParts");
 	freopen_s(&stream, "CONOUT$", "w", stdout);
 
 	if (!(renderer = new Renderer(static_cast<GLsizei>(particle_qty)))) {
 		OUTPUT_ERROR("Problem constructing renderer. FlexiParts disabled until reload.\n");
 		disable_flx = true;
 	}
+
+	/**
+	 * Run OnGraphicsDeviceEvent(initialize) manually on plugin load
+	 * to not miss the event in case the graphics device is already initialized
+	 */
+	on_graphics_device_event(kUnityGfxDeviceEventInitialize);
 }
 
 /* Destroy */
@@ -83,11 +84,18 @@ static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType
 				disable_flx = true;
 				return;
 			}
+
+			if (renderer)
+				renderer->init_opengl();
+
 		} break;
 		case kUnityGfxDeviceEventShutdown:
 		{
 			unity.renderer_type = kUnityGfxRendererNull;
-			//TODO: user shutdown code
+
+			if (renderer)
+				renderer->detroy_opengl();
+
 		} break;
 		case kUnityGfxDeviceEventBeforeReset:
 		{
@@ -104,7 +112,7 @@ static void UNITY_INTERFACE_API on_render_event(int eventId) {
 	if (disable_flx)
 		return;
 
-	renderer->render(delta_time);
+	renderer->render(time, delta_time);
 }
 
 extern "C" UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API flx_get_render_event_func() {

@@ -5,6 +5,7 @@ const static char* vert_shader_src = CODE(
 	layout (location = 0) in vec3 vert_position;
 	layout (location = 1) in vec4 vert_color;
 
+	uniform float time;
 	uniform mat4 model_mat;
 	uniform mat4 view_mat;
 	uniform mat4 proj_mat;
@@ -14,8 +15,10 @@ const static char* vert_shader_src = CODE(
 	};
 
 	void main() {
-		vec4 p = vec4(2.f, 1.f, -1.f, 1.f);
-		gl_Position = proj_mat * view_mat * model_mat * p;
+		//gl_Position = (proj_mat * view_mat * model_mat) * vec4(vert_position, 1.f);
+		vec4 p = vec4(vert_position.x + sin(time), vert_position.yz, 1.f);
+		gl_Position = (proj_mat * view_mat * model_mat) * p;
+		//gl_Position = vec4(vert_position, 1.f);
 	}\0
 );
 
