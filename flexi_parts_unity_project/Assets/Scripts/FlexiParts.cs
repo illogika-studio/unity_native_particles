@@ -65,8 +65,10 @@ public class FlexiParts : MonoBehaviour {
     }
 
     void Update()
-    {
-    }
+    {}
+
+    void LateUpdate ()
+    {}
 
     IEnumerator CallPluginAtEndOfFrames()
     {

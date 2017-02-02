@@ -2,7 +2,8 @@
 
 const static char* vert_shader_src = CODE(
 	#version 450 core\n
-	layout (location = 0) in vec3 pos;
+	layout (location = 0) in vec3 vert_position;
+	layout (location = 1) in vec4 vert_color;
 
 	uniform mat4 model_mat;
 	uniform mat4 view_mat;
@@ -20,10 +21,10 @@ const static char* vert_shader_src = CODE(
 
 const static char* frag_shader_src = CODE(
 	#version 450 core\n
-	out vec4 color;
+	out vec4 frag_color;
 
 	void main() {
-		color = vec4(0.86, 0.62, 0.86, 1.0);
+		frag_color = vec4(0.86, 0.62, 0.86, 1.0);
 	}\0
 );
 

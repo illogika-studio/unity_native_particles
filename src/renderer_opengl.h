@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <GL/gl.h>
 #include "glext.h"
+#include <stdio.h>
 
 struct mat4 {
 	GLfloat x[16];
@@ -14,9 +15,9 @@ struct vec3 {
 };
 
 struct Triangle {
-	vec3 v1 = {-0.5f, -0.5f, 0.f};
-	vec3 v2 = {-0.5f, -0.5f, 0.f};
-	vec3 v3 = {-0.5f, -0.5f, 0.f};
+	vec3 v1 = { -0.5f, -0.5f, 0.f };
+	vec3 v2 = { -0.5f, -0.5f, 0.f };
+	vec3 v3 = { -0.5f, -0.5f, 0.f };
 };
 
 struct Quad {
@@ -26,9 +27,9 @@ struct Quad {
 
 struct Transform {
 	/* TODO: SOA */
-	vec3 pos = {0.f, 0.f, 0.f};
-	vec3 rot = {0.f, 0.f, 0.f};
-	vec3 scale = {1.f, 1.f, 1.f};
+	vec3 pos = { 0.f, 0.f, 0.f };
+	vec3 rot = { 0.f, 0.f, 0.f };
+	vec3 scale = { 1.f, 1.f, 1.f };
 };
 
 struct ParticleData {
@@ -47,9 +48,9 @@ struct ParticleData {
 		triangle = (Triangle*)malloc(size * sizeof(Triangle));
 
 		for (int i = 0; i < size; ++i) {
-			pos[i] = {i * 0.01f, i * 0.01f, 0.f};
-			rot[i] = {0.f, 0.f, 0.f};
-			scale[i] = {1.f, 1.f, 1.f};
+			pos[i] = { i * 0.01f, i * 0.01f, 0.f };
+			rot[i] = { 0.f, 0.f, 0.f };
+			scale[i] = { 1.f, 1.f, 1.f };
 			triangle[i] = Triangle();
 		}
 	}
@@ -83,9 +84,20 @@ public:
 	~Renderer();
 
 	void mvp(float m[16], float v[16], float p[16]) {
-		memcpy(_model_mat, m, sizeof(m));
-		memcpy(_view_mat, v, sizeof(v));
-		memcpy(_projection_mat, p, sizeof(p));
+		memcpy(_model_mat, m, sizeof(float) * 16);
+		memcpy(_view_mat, v, sizeof(float) * 16);
+		memcpy(_projection_mat, p, sizeof(float) * 16);
+
+		for (int i = 0; i < 16; ++i) {
+			printf("%f ", _model_mat[i]);
+		} printf("\n");
+		for (int i = 0; i < 16; ++i) {
+			printf("%f ", _view_mat[i]);
+		} printf("\n");
+		for (int i = 0; i < 16; ++i) {
+			printf("%f ", _projection_mat[i]);
+		} printf("\n");
+
 		//_model_mat = m;
 		//_view_mat = v;
 		//_projection_mat = p;
@@ -98,8 +110,8 @@ private:
 	bool _initialized = false;
 	GLsizei _particle_qty = 0;
 	ParticleData* _data = nullptr;
-//	Transform* _transforms = nullptr;
-//	Triangle* _triangles = nullptr;
+	//	Transform* _transforms = nullptr;
+	//	Triangle* _triangles = nullptr;
 
 	GLuint _pipeline_id = 0;
 	GLuint _vert_shader_id = 0;
