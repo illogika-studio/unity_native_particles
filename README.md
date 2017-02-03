@@ -28,3 +28,10 @@ Things are rendered later during the frame. Rendering is quite hacky and needs l
 - Investigate fill rate optimization, by modeling the particle to hug the image.
 - Particle physics!?
 - Investigate Texture animations.
+
+## Benchmarking
+
+Unity easily renders 300 000 to 400 000 particles at 30fps. We currently only render 100 000. BUT, we are copying so much data, this is a great sign we can improve a lot!
+
+- Unity Shuriken : 300 000 to 400 000 particles at 30fps.
+- Basic CPU simulation copying data in uniforms for every particle : 100 000 at 30fps.
