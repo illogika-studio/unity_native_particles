@@ -10,7 +10,7 @@ To build, open CMakelist and point it to your Unity folder (currently C:/Program
 
 `mkdir build && cd build && cmake .. -G "Visual Studio 14 2015 Win64"`
 
-Open the generated solution in Visual Studio. When building in Visual Studio, make sure Unity is closed as a post-build process tries to copy the dll and will fail.
+Open the generated solution in Visual Studio. When building in Visual Studio, make sure Unity is closed as a post-build process tries to copy the dll and Visual Studio will fail.
 Use the FlexiParts.cs script to interface with the library.
 
 ## Technical Details
@@ -27,11 +27,11 @@ Things are rendered later during the frame. Rendering is quite hacky and needs l
 - Investigate Unity UI and Post Processes.
 - Investigate whether we can render while in edit-mode in Unity.
 - OpenGL : Use instancing and buffers to pass data to the GPU, instead of uniforms (really bad).
-- Investigate keeping different systems particles together, and use texture atlas for rendering.
+- Investigate keeping different particle systems contiguous in memory, and use texture atlas for rendering.
 - Investigate smooth particles (test Z-buffer, need render target).
-- Investigate fill rate optimization, by modeling the particle to hug the image.
-- Particle physics!?
+- Investigate fill rate optimization, by modeling the particle's mesh to hug the sprite.
 - Investigate Texture animations.
+- Particle physics!?
 
 ## Benchmarking
 
