@@ -161,18 +161,18 @@ void Renderer::update(float time, float delta_time) {
 
 	/* Position */
 	for (int i = 0; i < _data->size; ++i) {
+		if (_data->pos[i].y > 10.f && _data->speed[i].y > 0.f) {
+			_data->speed[i].y = -_data->speed[i].y;
+		} else if (_data->pos[i].y < -10.f && _data->speed[i].y < 0.f) {
+			_data->speed[i].y = -_data->speed[i].y;
+		}
 		_data->pos[i] += _data->speed[i] * delta_time;
 	}
 
 	/* Rotation */
 	for (int i = 0; i < _data->size; ++i) {
-		srand(i);
-		r = (rand() % 2000 - 1000.f) / 1000.f;
-		r *= 0.1f;
-
-		_data->rot[i].x += r;
-		_data->rot[i].y -= r;
-		_data->rot[i].z += r;
+		_data->rot[i].x += 0.1f;
+		_data->rot[i].y += 0.0001f;
 	}
 
 	/* Scale */

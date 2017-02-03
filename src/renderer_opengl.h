@@ -4,6 +4,8 @@
 #include "glext.h"
 #include <stdio.h>
 
+static const int random_seed = 1029831;
+
 struct vec3 {
 	GLfloat x;
 	GLfloat y;
@@ -17,15 +19,15 @@ struct vec3 {
 	}
 	
 	inline friend vec3 operator+(vec3 lhs, const vec3& rhs) {
-		return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.y };
+		return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z };
 	}
 
 	inline friend vec3 operator*(float lhs, const vec3& rhs) {
-		return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.y };
+		return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.z };
 	}
 
 	inline friend vec3 operator*(const vec3& rhs, float lhs) {
-		return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.y };
+		return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.z };
 	}
 };
 
@@ -56,20 +58,23 @@ struct ParticleData {
 		scale = (vec3*)malloc(size * sizeof(vec3));
 		speed = (vec3*)malloc(size * sizeof(vec3));
 
-		srand(209384); // Intentional, use deterministic randomness. TODO: gpu_rand()
+		srand(random_seed); // Intentional, use deterministic randomness. TODO: gpu_rand()
 		float r = 0.f;
-		vec3 main_dir = { 0.f, 10.f, 0.f };
+		vec3 main_dir = { 0.f, 5.f, 0.f };
 		for (int i = 0; i < size; ++i) {
-			r = (rand() % 2000 - 1000.f) / 1000.f;
-			r /= 2.f;
+			r = (static_cast<float>(rand() % 2000) - 1000.f) / 1000.f;
 
 			pos[i] = { 0.f, 0.f, 0.f };
-			rot[i] = {};
+			rot[i] = {
+				((static_cast<float>(rand()) / RAND_MAX) * 2.f - 1.f) * 360.f,
+				((static_cast<float>(rand()) / RAND_MAX) * 2.f - 1.f) * 360.f,
+				((static_cast<float>(rand()) / RAND_MAX) * 2.f - 1.f) * 360.f 
+			};
 			scale[i] = { 0.25f + r, 0.25f + r, 1.f };
-			speed[i] = main_dir + vec3{
-				(rand() % 2000 - 1000.f) / 1000.f,
-				(rand() % 2000 - 1000.f) / 1000.f,
-				(rand() % 2000 - 1000.f) / 1000.f
+			speed[i] = main_dir + vec3 {
+				(static_cast<float>(rand() % 2000) - 1000.f) / 1000.f,
+				(static_cast<float>(rand() % 2000) - 1000.f) / 1000.f,
+				(static_cast<float>(rand() % 2000) - 1000.f) / 1000.f
 			} * spread;
 		}
 	}
