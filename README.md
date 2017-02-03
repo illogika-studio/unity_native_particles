@@ -1,5 +1,9 @@
 # FlexiParts
 
+## Goal
+
+Investigate and benchmark various optimizations to create a particle system tuned for millions of simple particles. Starting target is 4 million particles at 60fps.
+
 ## Build
 
 To build, open CMakelist and point it to your Unity folder (currently C:/Program Files/Unity 5.5.1f).
