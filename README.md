@@ -19,10 +19,10 @@ One of the only optimization that is used is SOA for the simulation data (partic
 The system updates position, rotation and scale on the CPU called by Unity's Update loop.
 Things are rendered later during the frame. Rendering is quite hacky and needs love (copying uniforms for every particle).
 
-## Todo and future
+## Todo and Future
 
-- Architecture that permits enabling and disabling various optimizations to benchmark easily.
-- Add basic features such as life time, continuous spawning, bursts, respawn, multiple systems...
+- Architecture that allows enabling and disabling various optimizations to benchmark easily.
+- Add basic features such as life time, continuous spawning, bursts, respawn, multiple systems, world spawning...
 - Investigate CPU simulation vs. SIMD CPU simulation vs. GPU simulation.
 - Investigate Unity UI and Post Processes.
 - Investigate whether we can render while in edit-mode in Unity.
