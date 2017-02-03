@@ -14,8 +14,8 @@ static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType
 Renderer* renderer = nullptr;
 int particle_qty = 10000;
 bool disable_flx = false;
-float time = 0.f;
-float delta_time = 0.f;
+float _time = 0.f;
+float _delta_time = 0.f;
 
 FILE* stream;
 
@@ -108,35 +108,27 @@ static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType
 	};
 }
 
-static void UNITY_INTERFACE_API on_render_event(int eventId) {
+static void UNITY_INTERFACE_API flx_render(int eventId) {
 	if (disable_flx)
 		return;
 
-	renderer->update(time, delta_time);
-	renderer->render(time, delta_time);
+	renderer->render(_time, _delta_time);
 }
 
 extern "C" UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API flx_get_render_event_func() {
-	return on_render_event;
+	return flx_render;
 }
 
-extern "C" const UNITY_INTERFACE_EXPORT char* UNITY_INTERFACE_API flx_get_test_msg() {
-	return "FlexiParts message woot\n";
-}
+FP(void) flx_update(int eventId, float time, float delta_time) {
+	if (disable_flx)
+		return;
 
-FP(void) flx_print_msg() {
-	OUTPUT_ERROR("FlexiParts native message?\n");
-}
+	_time = time;
+	_delta_time = delta_time;
+	renderer->update(_time, _delta_time);
+};
 
-FP(void) flx_set_time(float t) {
-	time = t;
-}
-
-FP(void) flx_set_delta_time(float t) {
-	delta_time = t;
-}
-
-FP(void) flx_initialize(int32_t particle_qty) {
+FP(void) flx_init(int32_t particle_qty) {
 	if (renderer != nullptr) {
 		OUTPUT_ERROR("Changing particle quantity after initialization is not yet supported.\n");
 	}

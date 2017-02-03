@@ -4,32 +4,17 @@
 #include "glext.h"
 #include <stdio.h>
 
-struct mat4 {
-	GLfloat x[16];
-};
-
 struct vec3 {
 	GLfloat x;
 	GLfloat y;
 	GLfloat z;
 };
 
-struct Triangle {
-	vec3 v1 = { -1.f, -1.f, 0.f };
-	vec3 v2 = { 1.f, -1.f, 0.f };
-	vec3 v3 = { 0.f, 1.f, 0.f };
-};
-
-struct Quad {
-	Triangle t1;
-	Triangle t2;
-};
-
-struct Transform {
-	/* TODO: SOA */
-	vec3 pos = { 0.f, 0.f, 0.f };
-	vec3 rot = { 0.f, 0.f, 0.f };
-	vec3 scale = { 1.f, 1.f, 1.f };
+static const GLfloat quad[12] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	-0.5f,  0.5f, 0.0f,
+	 0.5f,  0.5f, 0.0f,
 };
 
 struct ParticleData {
@@ -37,7 +22,6 @@ struct ParticleData {
 	vec3* pos = nullptr;
 	vec3* rot = nullptr;
 	vec3* scale = nullptr;
-	Triangle* triangle = nullptr;
 
 	ParticleData() = delete;
 	ParticleData(GLsizei qty) {
@@ -45,13 +29,11 @@ struct ParticleData {
 		pos = (vec3*)malloc(size * sizeof(vec3));
 		rot = (vec3*)malloc(size * sizeof(vec3));
 		scale = (vec3*)malloc(size * sizeof(vec3));
-		triangle = (Triangle*)malloc(size * sizeof(Triangle));
 
 		for (int i = 0; i < size; ++i) {
 			pos[i] = { 0.f, 0.f, 0.f };
 			rot[i] = {};
 			scale[i] = { 1.f, 1.f, 1.f };
-			triangle[i] = {};
 		}
 	}
 
@@ -68,10 +50,6 @@ struct ParticleData {
 		if (scale) {
 			free(scale);
 			scale = nullptr;
-		}
-		if (triangle) {
-			free(triangle);
-			triangle = nullptr;
 		}
 	}
 

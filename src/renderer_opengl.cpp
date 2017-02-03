@@ -6,23 +6,6 @@
 #include <stdlib.h>
 
 void* gl_funcs[NUMFUNCS];
-
-#define fzn  0.005f
-#define fzf  1000.0f
-
-static const float test_projection_matrix[16] = {
-	1.0f, 0.00f,  0.0f,                    0.0f,
-	0.0f, 1.25f,  0.0f,                    0.0f,
-	0.0f, 0.00f, -(fzf + fzn) / (fzf - fzn),    -1.0f,
-	0.0f, 0.00f, -2.0f*fzf*fzn / (fzf - fzn),  0.0f
-};
-
-static const GLfloat test_tri[9] = {
-	-1.f, -1.f, 0.f
-	, 1.f, -1.0f, 0.f
-	, 0.f, 1.f, 0.f
-};
-
 Renderer::Renderer(GLsizei particle_qty) {
 	if (particle_qty == 0) {
 		OUTPUT_ERROR("Please set the quantity of particles desired.\n");
@@ -139,8 +122,8 @@ void Renderer::init_opengl() {
 
 	oglGenBuffers(1, &_vertex_buffer_id);
 	oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
-	oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
-			test_tri, GL_STATIC_DRAW);
+	oglBufferData(GL_ARRAY_BUFFER, sizeof(quad),
+			quad, GL_STATIC_DRAW);
 
 	oglVertexAttribPointer(
 		0,			// Must match the layout in the shader.
@@ -170,25 +153,36 @@ void Renderer::detroy_opengl() {
 
 void Renderer::update(float time, float delta_time) {
 	float r, r_neg;
+
+	/* Position */
 	for (int i = 0; i < _data->size; ++i) {
-		srand(i);
-		r = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
-		r_neg = r - 0.5f;
+		//srand(i);
+		//r = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
+		//r_neg = r - 0.5f;
 
 		//_data->pos[i].x += 0.1f * _velocity * r_neg;
 		_data->pos[i].y += (static_cast<float>(i) * 0.001f) * delta_time;
 		//_data->pos[i].z += 0.1f * _velocity * r_neg;
 	}
+
+	/* Scale */
+	for (int i = 0; i < _data->size; ++i) {
+		srand(i);
+		r = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
+		//r_neg = r - 0.5f;
+		_data->scale[i].x = r;
+		_data->scale[i].y = r;
+	}
 }
 
 void Renderer::render(float time, float delta_time) {
 	/* Basic render state. */
-	glDisable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE_MINUS_DST_ALPHA,GL_DST_ALPHA);
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_FALSE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glDepthFunc(GL_LEQUAL);
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthMask(GL_FALSE);
 
 	oglUseProgram(_pipeline_id);
 	oglUniformMatrix4fv(_model_uniform_id, 1, GL_FALSE, _model_mat);
@@ -198,8 +192,8 @@ void Renderer::render(float time, float delta_time) {
 
 	/* VBO */
 	oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
-	oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
-			test_tri, GL_STATIC_DRAW);
+	//oglBufferData(GL_ARRAY_BUFFER, sizeof(quad),
+	//		quad, GL_STATIC_DRAW);
 
 	for (int i = 0; i < _data->size; ++i) {
 		//_data->print(i);
@@ -213,7 +207,7 @@ void Renderer::render(float time, float delta_time) {
 
 		oglEnableVertexAttribArray(0);
 		oglVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
-		glDrawArrays(GL_TRIANGLES, GL_POINTS, 3);
+		glDrawArrays(GL_TRIANGLE_STRIP, GL_POINTS, 4);
 		oglDisableVertexAttribArray(0);
 	}
 

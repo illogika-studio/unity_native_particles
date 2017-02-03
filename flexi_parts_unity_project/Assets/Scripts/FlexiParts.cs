@@ -8,14 +8,14 @@ public class FlexiParts : MonoBehaviour {
 #else
 	[DllImport("libflexiparts")]
 #endif
-	static extern System.IntPtr flx_get_test_msg();
+	static extern void flx_init(System.Int32 particle_qty);
 
 #if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
 	[DllImport("__Internal")]
 #else
 	[DllImport("libflexiparts")]
 #endif
-	static extern void flx_print_msg();
+	static extern void flx_update(int eventId, float time, float delta_time);
 
 #if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
 	[DllImport("__Internal")]
@@ -29,34 +29,11 @@ public class FlexiParts : MonoBehaviour {
 #else
 	[DllImport("libflexiparts")]
 #endif
-	static extern void flx_set_time(float t);
-
-#if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
-	[DllImport("__Internal")]
-#else
-	[DllImport("libflexiparts")]
-#endif
-	static extern void flx_set_delta_time(float t);
-
-#if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
-	[DllImport("__Internal")]
-#else
-	[DllImport("libflexiparts")]
-#endif
-	static extern void flx_initialize(System.Int32 particle_qty);
-
-#if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
-	[DllImport("__Internal")]
-#else
-	[DllImport("libflexiparts")]
-#endif
 	static extern void flx_set_mvp(float[] model, float[] view, float[] projection);
 
 	void Awake()
 	{
-		//Debug.Log(Marshal.PtrToStringAnsi(flx_get_test_msg()));
-		//      flx_print_msg();
-		flx_initialize(1);
+		flx_init(10000);
 	}
 
 	IEnumerator Start()
@@ -65,7 +42,9 @@ public class FlexiParts : MonoBehaviour {
 	}
 
 	void Update()
-	{ }
+	{
+		flx_update(1, Time.time, Time.deltaTime);
+	}
 
 	void LateUpdate()
 	{ }
@@ -86,8 +65,6 @@ public class FlexiParts : MonoBehaviour {
 		while (true) {
 			yield return new WaitForEndOfFrame();
 
-			flx_set_time(Time.timeSinceLevelLoad);
-			flx_set_delta_time(Time.deltaTime);
 			flx_set_mvp(Mat4ToFloat16Row(transform.localToWorldMatrix),
 					Mat4ToFloat16Row(Camera.main.worldToCameraMatrix),
 					Mat4ToFloat16Row(Camera.main.projectionMatrix));

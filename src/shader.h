@@ -41,7 +41,7 @@ const static char* vert_shader_src = CODE(
 			0.f, 0.f, transform_mat[2][2], 0.f,
 			0.f, 0.f, 0.f, 1.f
 		);
-		return t;// * r * s;
+		return t * s;
 	}
 
 	void main() {
@@ -58,7 +58,7 @@ const static char* frag_shader_src = CODE(
 	out vec4 frag_color;
 
 	void main() {
-		frag_color = vec4(0.86, 0.62, 0.86, 0.1f);
+		frag_color = vec4(0.86, 0.62, 0.86, 0.8f);
 	}\0
 );
 
