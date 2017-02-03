@@ -152,37 +152,45 @@ void Renderer::detroy_opengl() {
 }
 
 void Renderer::update(float time, float delta_time) {
-	float r, r_neg;
+	float r = 0.f;
+
+	/* Speed */
+	for (int i = 0; i < _data->size; ++i) {
+		_data->speed[i] += _data->gravity * delta_time * _data->global_speed;
+	}
 
 	/* Position */
 	for (int i = 0; i < _data->size; ++i) {
-		//srand(i);
-		//r = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
-		//r_neg = r - 0.5f;
+		_data->pos[i] += _data->speed[i] * delta_time;
+	}
 
-		//_data->pos[i].x += 0.1f * _velocity * r_neg;
-		_data->pos[i].y += (static_cast<float>(i) * 0.001f) * delta_time;
-		//_data->pos[i].z += 0.1f * _velocity * r_neg;
+	/* Rotation */
+	for (int i = 0; i < _data->size; ++i) {
+		srand(i);
+		r = (rand() % 2000 - 1000.f) / 1000.f;
+		r *= 0.1f;
+
+		_data->rot[i].x += r;
+		_data->rot[i].y -= r;
+		_data->rot[i].z += r;
 	}
 
 	/* Scale */
-	for (int i = 0; i < _data->size; ++i) {
-		srand(i);
-		r = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
-		//r_neg = r - 0.5f;
-		_data->scale[i].x = r;
-		_data->scale[i].y = r;
-	}
+	//for (int i = 0; i < _data->size; ++i) {
+	//	_data->scale[i].x = r;
+	//	_data->scale[i].y = r;
+	//}
+
 }
 
 void Renderer::render(float time, float delta_time) {
 	/* Basic render state. */
-	//glDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glDepthFunc(GL_LEQUAL);
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthMask(GL_FALSE);
 
 	oglUseProgram(_pipeline_id);
 	oglUniformMatrix4fv(_model_uniform_id, 1, GL_FALSE, _model_mat);

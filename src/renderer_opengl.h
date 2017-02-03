@@ -8,6 +8,25 @@ struct vec3 {
 	GLfloat x;
 	GLfloat y;
 	GLfloat z;
+
+	inline vec3& operator+=(const vec3& rhs) {
+		x += rhs.x;
+		y += rhs.y;
+		z += rhs.z;
+		return *this;
+	}
+	
+	inline friend vec3 operator+(vec3 lhs, const vec3& rhs) {
+		return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.y };
+	}
+
+	inline friend vec3 operator*(float lhs, const vec3& rhs) {
+		return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.y };
+	}
+
+	inline friend vec3 operator*(const vec3& rhs, float lhs) {
+		return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.y };
+	}
 };
 
 static const GLfloat quad[12] = {
@@ -19,9 +38,15 @@ static const GLfloat quad[12] = {
 
 struct ParticleData {
 	GLsizei size = 0;
+
+	const vec3 gravity = { 0.f, -9.8f, 0.f };
+	const float spread = 1.5f;
+	const float global_speed = 0.1f;
+
 	vec3* pos = nullptr;
 	vec3* rot = nullptr;
 	vec3* scale = nullptr;
+	vec3* speed = nullptr;
 
 	ParticleData() = delete;
 	ParticleData(GLsizei qty) {
@@ -29,11 +54,23 @@ struct ParticleData {
 		pos = (vec3*)malloc(size * sizeof(vec3));
 		rot = (vec3*)malloc(size * sizeof(vec3));
 		scale = (vec3*)malloc(size * sizeof(vec3));
+		speed = (vec3*)malloc(size * sizeof(vec3));
 
+		srand(209384); // Intentional, use deterministic randomness. TODO: gpu_rand()
+		float r = 0.f;
+		vec3 main_dir = { 0.f, 10.f, 0.f };
 		for (int i = 0; i < size; ++i) {
+			r = (rand() % 2000 - 1000.f) / 1000.f;
+			r /= 2.f;
+
 			pos[i] = { 0.f, 0.f, 0.f };
 			rot[i] = {};
-			scale[i] = { 1.f, 1.f, 1.f };
+			scale[i] = { 0.25f + r, 0.25f + r, 1.f };
+			speed[i] = main_dir + vec3{
+				(rand() % 2000 - 1000.f) / 1000.f,
+				(rand() % 2000 - 1000.f) / 1000.f,
+				(rand() % 2000 - 1000.f) / 1000.f
+			} * spread;
 		}
 	}
 
@@ -50,6 +87,10 @@ struct ParticleData {
 		if (scale) {
 			free(scale);
 			scale = nullptr;
+		}
+		if (speed) {
+			free(speed);
+			speed = nullptr;
 		}
 	}
 

@@ -30,9 +30,9 @@ const static char* vert_shader_src = CODE(
 			transform_mat[0][0], transform_mat[0][1], transform_mat[0][2], 1.f
 		);
 		mat4 r = mat4(
-			cos_b*cos_g, cos_g*sin_a*sin_b - cos_a*sin_g, cos_a*cos_g*sin_b + sin_a*sin_g, 0.f,
-			cos_b*sin_g, cos_a*cos_g + sin_a*sin_b*sin_g, -cos_g*sin_a + cos_a*sin_b*sin_g, 0.f,
-			-sin_b, cos_b*sin_a, cos_a*cos_b, 0.f,
+			cos_b*cos_g, cos_b*sin_g, -sin_b, 0.f, 
+			cos_g*sin_a*sin_b - cos_a*sin_g, cos_a*cos_g + sin_a*sin_b*sin_g, cos_b*sin_a, 0.f, 
+			cos_a*cos_g*sin_b + sin_a*sin_g, -cos_g*sin_a + cos_a*sin_b*sin_g, cos_a*cos_b, 0.f, 
 			0.f, 0.f, 0.f, 1.f
 		);
 		mat4 s = mat4(
@@ -41,7 +41,7 @@ const static char* vert_shader_src = CODE(
 			0.f, 0.f, transform_mat[2][2], 0.f,
 			0.f, 0.f, 0.f, 1.f
 		);
-		return t * s;
+		return t * r * s;
 	}
 
 	void main() {
@@ -58,7 +58,7 @@ const static char* frag_shader_src = CODE(
 	out vec4 frag_color;
 
 	void main() {
-		frag_color = vec4(0.86, 0.62, 0.86, 0.8f);
+		frag_color = vec4(0.86, 0.62, 0.86, 0.5f);
 	}\0
 );
 
