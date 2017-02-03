@@ -179,14 +179,6 @@ void Renderer::update(float time, float delta_time) {
 		_data->pos[i].y += (static_cast<float>(i) * 0.001f) * delta_time;
 		//_data->pos[i].z += 0.1f * _velocity * r_neg;
 	}
-	//for (int i = 0; i < _data->size; ++i) {
- //		_data->rot[i].x, _data->rot[i].y, _data->rot[i].z
-	//}
-	//for (int i = 0; i < _data->size; ++i) {
-	//	_data->scale[i].x += delta_time * 0.01f;
-	//	_data->scale[i].y += delta_time * 0.01f;
-	//	//_data->print(i);
-	//}
 }
 
 void Renderer::render(float time, float delta_time) {
@@ -204,6 +196,11 @@ void Renderer::render(float time, float delta_time) {
 	oglUniformMatrix4fv(_projection_uniform_id, 1, GL_FALSE, _projection_mat);
 	oglUniform1f(_time_uniform_id, time);
 
+	/* VBO */
+	oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
+	oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
+			test_tri, GL_STATIC_DRAW);
+
 	for (int i = 0; i < _data->size; ++i) {
 		//_data->print(i);
 		GLfloat t[16] = {
@@ -213,38 +210,13 @@ void Renderer::render(float time, float delta_time) {
 		};
 		oglUniformMatrix3fv(_transform_uniform_id, 1, GL_FALSE, t);
 
-		/* VAO */
-		oglGenVertexArrays(1, &_vertex_array_id);
-		oglBindVertexArray(_vertex_array_id);
-
-		/* VBO */
-		oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
-		oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
-				test_tri, GL_STATIC_DRAW);
 
 		oglEnableVertexAttribArray(0);
 		oglVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
 		glDrawArrays(GL_TRIANGLES, GL_POINTS, 3);
 		oglDisableVertexAttribArray(0);
-		oglDeleteVertexArrays(1, &_vertex_array_id);
-		oglBindVertexArray(0);
 	}
 
-	///* VAO */
-	//oglGenVertexArrays(1, &_vertex_array_id);
-	//oglBindVertexArray(_vertex_array_id);
-
-	///* VBO */
-	//oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
-	//oglBufferData(GL_ARRAY_BUFFER, sizeof(test_tri),
-	//		test_tri, GL_STATIC_DRAW);
-
-	//oglEnableVertexAttribArray(0);
-	//oglVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
-	//glDrawArrays(GL_TRIANGLES, GL_POINTS, 3);
-	//oglDisableVertexAttribArray(0);
-	//oglDeleteVertexArrays(1, &_vertex_array_id);
-	//oglBindVertexArray(0);
 	GL_CHECK_ERROR();
 }
 
