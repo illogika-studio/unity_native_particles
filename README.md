@@ -23,7 +23,7 @@ Things are rendered later during the frame. Rendering is quite hacky and needs l
 
 - Architecture that allows enabling and disabling various optimizations to benchmark easily.
 - Add basic features such as life time, continuous spawning, bursts, respawn, multiple systems, world spawning...
-- Investigate CPU simulation vs. SIMD CPU simulation vs. GPU simulation.
+- Investigate CPU simulation vs. SIMD CPU simulation vs. GPU simulation (transform feedback).
 - Investigate Unity UI and Post Processes.
 - Investigate whether we can render while in edit-mode in Unity.
 - OpenGL : Use instancing and buffers to pass data to the GPU, instead of uniforms (really bad).
@@ -31,6 +31,9 @@ Things are rendered later during the frame. Rendering is quite hacky and needs l
 - Investigate smooth particles (test Z-buffer, need render target).
 - Investigate fill rate optimization, by modeling the particle's mesh to hug the sprite.
 - Investigate Texture animations.
+- Investigate AMD async extension.
+- Investigate stream compression (example in microsoft miniengine).
+- Investigate round-robin buffer uploads.
 - Particle physics!?
 
 ## Benchmarking
