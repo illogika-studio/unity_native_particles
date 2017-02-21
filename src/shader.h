@@ -21,27 +21,52 @@ static uniform_info uniforms[] = {
 	, { "proj_mat", -1 }
 	, { "transform_mat", -1 }
 };
-static const size_t uniform_num = sizeof(uniforms) / sizeof(uniform_info);
+static const size_t uniforms_num = sizeof(uniforms) / sizeof(uniform_info);
+
+static void gl_init_uniforms(uniform_info arr[], const size_t s, const GLuint pipeline_id) {
+	for (int i = 0; i < s; ++i) {
+		arr[i].id = oglGetUniformLocation(pipeline_id, arr[i].name);
+		if (arr[i].id == -1) {
+			OUTPUT_ERROR("Couldnt get uniform location : %s", arr[i].name);
+		}
+	}
+}
 
 /* Locations */
+struct location_info {
+	const char* name;
+	GLuint id;
+};
 #define	loc_vert_pos			0
 #define	loc_vert_color			1
 #define	loc_transform_pos		2
 #define	loc_transform_rot		3
 #define	loc_transform_scale		4
 
-static void gl_init_uniforms(const uniform_info arr[], const size_t s, const GLuint pipeline_id) {
+static location_info locations[] = {
+	  { "vert_pos", 0 }
+	, { "vert_color", 0 }
+	, { "transform_pos", 0 }
+	, { "transform_rot", 0 }
+	, { "transform_scale", 0 }
+};
+static const size_t locations_num = sizeof(locations) / sizeof(location_info);
+
+static void gl_bind_locations(const location_info arr[], const size_t s, const GLuint pipeline_id) {
 	for (int i = 0; i < s; ++i) {
-		uniforms[i].id = oglGetUniformLocation(pipeline_id, uniforms[i].name);
-		if (uniforms[i].id == -1) {
-			OUTPUT_ERROR("Couldnt get uniform location : %s", uniforms[i].name);
-		}
+		oglBindAttribLocation(pipeline_id, i, arr[i].name);
+	}
+}
+
+static void gl_delete_locations(location_info arr[], const size_t s, const GLuint pipeline_id) {
+	for (int i = 0; i < s; ++i) {
+		oglDeleteBuffers(1, &arr[i].id);
 	}
 }
 
 static const char* vert_shader_src = CODE(
 	#version 450 core\n
-	layout (location = 0)	in vec3 vert_position;
+	layout (location = 0)	in vec3 vert_pos;
 	layout (location = 1)	in vec4 vert_color;
 	layout (location = 2)	in vec3 transform_pos;
 	layout (location = 3)	in vec3 transform_rot;
@@ -89,7 +114,7 @@ static const char* vert_shader_src = CODE(
 	void main() {
 		//gl_Position = (proj_mat * view_mat * model_mat) * vec4(vert_position, 1.f);
 		//vec4 p = vec4(vert_position.x + sin(time), vert_position.yz, 1.f);
-		vec4 p = vec4(vert_position, 1.f);
+		vec4 p = vec4(vert_pos, 1.f);
 		gl_Position = (proj_mat * view_mat * model_mat * calc_initial_position()) * p;
 		//gl_Position = vec4(vert_position, 1.f);
 	}\0

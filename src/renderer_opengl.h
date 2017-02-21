@@ -50,7 +50,6 @@ struct ParticleData {
 	vec3* scale = nullptr;
 	vec3* speed = nullptr;
 
-	ParticleData() = delete;
 	ParticleData(GLsizei qty) {
 		size = qty;
 		pos = (vec3*)malloc(size * sizeof(vec3));
@@ -132,7 +131,6 @@ private:
 	GLuint _vert_shader_id = 0;
 	GLuint _frag_shader_id = 0;
 	GLuint _vertex_array_id = 0;
-	GLuint _vertex_buffer_id = 0;
 
 	GLfloat _model_mat[16] = {};
 	GLfloat _view_mat[16] = {};

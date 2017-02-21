@@ -75,8 +75,7 @@ void Renderer::init_opengl() {
 	oglAttachShader(_pipeline_id, _frag_shader_id);
 
 	// bind the attribute locations (inputs)
-	oglBindAttribLocation(_pipeline_id, loc_vert_pos, "vert_position");
-	oglBindAttribLocation(_pipeline_id, loc_vert_color, "vert_color");
+	gl_bind_locations(locations, locations_num, _pipeline_id);
 
 	// bind the FragDataLocation (output)
 	oglBindFragDataLocation(_pipeline_id, 0, "frag_color");
@@ -93,24 +92,29 @@ void Renderer::init_opengl() {
 		return;
 	}
 
-	gl_init_uniforms(uniforms, uniform_num, _pipeline_id);
+	gl_init_uniforms(uniforms, uniforms_num, _pipeline_id);
 
 	GL_CHECK_ERROR();
 
 	oglGenVertexArrays(1, &_vertex_array_id);
 	oglBindVertexArray(_vertex_array_id);
 
-	oglGenBuffers(1, &_vertex_buffer_id);
-	oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
+	oglGenBuffers(1, &locations[loc_vert_pos].id);
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
 	oglBufferData(GL_ARRAY_BUFFER, sizeof(quad),
 			quad, GL_STATIC_DRAW);
+
+	oglGenBuffers(1, &locations[loc_transform_pos].id);
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
+	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3),
+			nullptr, GL_STREAM_DRAW);
 
 	GL_CHECK_ERROR();
 }
 
 void Renderer::detroy_opengl() {
 	oglDeleteVertexArrays(1, &_vertex_array_id);
-	oglDeleteBuffers(1, &_vertex_buffer_id);
+	gl_delete_locations(locations, locations_num, _pipeline_id);
 
 	oglDetachShader(_pipeline_id, _vert_shader_id);
 	oglDetachShader(_pipeline_id, _frag_shader_id);
@@ -167,7 +171,9 @@ void Renderer::render(float time, float delta_time) {
 	oglUniform1f(uniforms[u_time].id, time);
 
 	/* VBO */
-	oglBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_id);
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
+	oglEnableVertexAttribArray(loc_vert_pos);
+	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
 
 	for (int i = 0; i < _data.size; ++i) {
 		GLfloat t[16] = {
@@ -177,10 +183,7 @@ void Renderer::render(float time, float delta_time) {
 		};
 		oglUniformMatrix3fv(uniforms[u_transform].id, 1, GL_FALSE, t);
 
-		oglEnableVertexAttribArray(0);
-		oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
 		glDrawArrays(GL_TRIANGLE_STRIP, GL_POINTS, 4);
-		oglDisableVertexAttribArray(0);
 	}
 
 	GL_CHECK_ERROR();
