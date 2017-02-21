@@ -5,26 +5,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void* gl_funcs[NUMFUNCS];
-Renderer::Renderer(GLsizei particle_qty) {
+Renderer::Renderer(GLsizei particle_qty)
+	: _data(particle_qty)
+{
 	if (particle_qty == 0) {
 		OUTPUT_ERROR("Please set the quantity of particles desired.\n");
-		return;
 	}
 	if (!init_gl_funcs()) {
 		OUTPUT_ERROR("Could not get OpenGL functions.\n");
-		return;
 	}
-	_data = new ParticleData(particle_qty);
-	_initialized = true;
 }
 
-Renderer::~Renderer() {
-	if (_data) {
-		delete _data;
-		_data = nullptr;
-	}
-}
+Renderer::~Renderer()
+{}
 
 void Renderer::init_opengl() {
 
@@ -84,7 +77,7 @@ void Renderer::init_opengl() {
 	// bind the attribute locations (inputs)
 	oglBindAttribLocation(_pipeline_id, 0, "vert_position");
 	oglBindAttribLocation(_pipeline_id, 1, "vert_color");
-	
+
 	// bind the FragDataLocation (output)
 	oglBindFragDataLocation(_pipeline_id, 0, "frag_color");
 
@@ -125,26 +118,14 @@ void Renderer::init_opengl() {
 	oglBufferData(GL_ARRAY_BUFFER, sizeof(quad),
 			quad, GL_STATIC_DRAW);
 
-	oglVertexAttribPointer(
-		0,			// Must match the layout in the shader.
-		3,			// size
-		GL_FLOAT,	// type
-		GL_FALSE,	// normalized?
-		3 * sizeof(GLfloat),			// stride
-		(void*)0	// array buffer offset
-	);
-	/* Cleanup */
-	oglEnableVertexAttribArray(0);
-
 	GL_CHECK_ERROR();
-
 }
 
 void Renderer::detroy_opengl() {
 	oglDeleteVertexArrays(1, &_vertex_array_id);
 	oglDeleteBuffers(1, &_vertex_buffer_id);
-	
-	oglDetachShader(_pipeline_id, _vert_shader_id);	
+
+	oglDetachShader(_pipeline_id, _vert_shader_id);
 	oglDetachShader(_pipeline_id, _frag_shader_id);
 	oglDeleteShader(_vert_shader_id);
 	oglDeleteShader(_frag_shader_id);
@@ -155,30 +136,30 @@ void Renderer::update(float time, float delta_time) {
 	float r = 0.f;
 
 	/* Speed */
-	for (int i = 0; i < _data->size; ++i) {
-		_data->speed[i] += _data->gravity * delta_time * _data->global_speed;
+	for (int i = 0; i < _data.size; ++i) {
+		_data.speed[i] += _data.gravity * delta_time * _data.global_speed;
 	}
 
 	/* Position */
-	for (int i = 0; i < _data->size; ++i) {
-		if (_data->pos[i].y > 10.f && _data->speed[i].y > 0.f) {
-			_data->speed[i].y = -_data->speed[i].y;
-		} else if (_data->pos[i].y < -10.f && _data->speed[i].y < 0.f) {
-			_data->speed[i].y = -_data->speed[i].y;
+	for (int i = 0; i < _data.size; ++i) {
+		if (_data.pos[i].y > 10.f && _data.speed[i].y > 0.f) {
+			_data.speed[i].y = -_data.speed[i].y;
+		} else if (_data.pos[i].y < -10.f && _data.speed[i].y < 0.f) {
+			_data.speed[i].y = -_data.speed[i].y;
 		}
-		_data->pos[i] += _data->speed[i] * delta_time;
+		_data.pos[i] += _data.speed[i] * delta_time;
 	}
 
 	/* Rotation */
-	for (int i = 0; i < _data->size; ++i) {
-		_data->rot[i].x += 0.1f;
-		_data->rot[i].y += 0.0001f;
+	for (int i = 0; i < _data.size; ++i) {
+		_data.rot[i].x += 0.1f;
+		_data.rot[i].y += 0.0001f;
 	}
 
 	/* Scale */
-	//for (int i = 0; i < _data->size; ++i) {
-	//	_data->scale[i].x = r;
-	//	_data->scale[i].y = r;
+	//for (int i = 0; i < _data.size; ++i) {
+	//	_data.scale[i].x = r;
+	//	_data.scale[i].y = r;
 	//}
 
 }
@@ -203,12 +184,12 @@ void Renderer::render(float time, float delta_time) {
 	//oglBufferData(GL_ARRAY_BUFFER, sizeof(quad),
 	//		quad, GL_STATIC_DRAW);
 
-	for (int i = 0; i < _data->size; ++i) {
-		//_data->print(i);
+	for (int i = 0; i < _data.size; ++i) {
+		//_data.print(i);
 		GLfloat t[16] = {
-			_data->pos[i].x, _data->pos[i].y, _data->pos[i].z
- 			, _data->rot[i].x, _data->rot[i].y, _data->rot[i].z
-			, _data->scale[i].x, _data->scale[i].y, _data->scale[i].z
+			_data.pos[i].x, _data.pos[i].y, _data.pos[i].z
+ 			, _data.rot[i].x, _data.rot[i].y, _data.rot[i].z
+			, _data.scale[i].x, _data.scale[i].y, _data.scale[i].z
 		};
 		oglUniformMatrix3fv(_transform_uniform_id, 1, GL_FALSE, t);
 
@@ -221,15 +202,3 @@ void Renderer::render(float time, float delta_time) {
 
 	GL_CHECK_ERROR();
 }
-
-int Renderer::init_gl_funcs() {
-	for (int i = 0; i < NUMFUNCS; ++i) {
-		gl_funcs[i] = wglGetProcAddress(gl_func_names[i]);
-		if (!gl_funcs[i]) {
-			OUTPUT_ERROR("Problem getting OpenGL extension function : %s was null.", gl_func_names[i]);
-			return 0;
-		}
-	}
-	return 1;
-}
-

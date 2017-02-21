@@ -13,7 +13,6 @@
 	} \
 }
 
-#define NUMFUNCS 38
 const static char* gl_func_names[] = {
 	"glCreateShaderProgramv"
 	, "glGenProgramPipelines"
@@ -55,7 +54,8 @@ const static char* gl_func_names[] = {
 	, "glUniform1f"
 };
 
-extern void* gl_funcs[NUMFUNCS];
+static const size_t gl_num_funcs = sizeof(gl_func_names) / sizeof(char*);
+static void* gl_funcs[gl_num_funcs];
 #define oglCreateShaderProgramv	((PFNGLCREATESHADERPROGRAMVPROC)gl_funcs[0])
 #define oglGenProgramPipelines		((PFNGLGENPROGRAMPIPELINESPROC)gl_funcs[1])
 #define oglBindProgramPipeline		((PFNGLBINDPROGRAMPIPELINEPROC)gl_funcs[2])
@@ -138,3 +138,13 @@ static inline void gl_error_string(char* msg) {
 	}
 }
 
+static int init_gl_funcs() {
+	for (int i = 0; i < gl_num_funcs; ++i) {
+		gl_funcs[i] = wglGetProcAddress(gl_func_names[i]);
+		if (!gl_funcs[i]) {
+			OUTPUT_ERROR("Problem getting OpenGL extension function : %s was null.", gl_func_names[i]);
+			return 0;
+		}
+	}
+	return 1;
+}

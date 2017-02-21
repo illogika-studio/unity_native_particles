@@ -106,18 +106,10 @@ struct ParticleData {
 			scale[i].x, scale[i].y, scale[i].z
 		);
 	}
-
-	//void get_array(size_t i, GLfloat* output) {
-	//	output = { pos[i].x, pos[i].y, pos[i].z
-	//		, rot[i].x, rot[i].y, rot[i].z
-	//		, scale[i].x, scale[i].y, scale[i].z
-	//	};
-	//}
 };
 
 class Renderer {
 public:
-	Renderer() = delete;
 	Renderer(GLsizei particle_qty);
 	~Renderer();
 
@@ -132,13 +124,9 @@ public:
 		memcpy(_view_mat, v, sizeof(GLfloat) * 16);
 		memcpy(_projection_mat, p, sizeof(GLfloat) * 16);
 	}
-private:
-	inline int init_gl_funcs();
 
-	bool _initialized = false;
-	ParticleData* _data = nullptr;
-	//	Transform* _transforms = nullptr;
-	//	Triangle* _triangles = nullptr;
+private:
+	ParticleData _data;
 
 	GLuint _pipeline_id = 0;
 	GLuint _vert_shader_id = 0;
