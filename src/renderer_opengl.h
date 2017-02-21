@@ -119,7 +119,7 @@ public:
 	void update(float time, float delta_time);
 	void render(float time, float delta_time);
 
-	void mvp(GLfloat m[16], GLfloat v[16], GLfloat p[16]) {
+	void mvp(const GLfloat m[16], const GLfloat v[16], const GLfloat p[16]) {
 		memcpy(_model_mat, m, sizeof(GLfloat) * 16);
 		memcpy(_view_mat, v, sizeof(GLfloat) * 16);
 		memcpy(_projection_mat, p, sizeof(GLfloat) * 16);
@@ -133,11 +133,6 @@ private:
 	GLuint _frag_shader_id = 0;
 	GLuint _vertex_array_id = 0;
 	GLuint _vertex_buffer_id = 0;
-	GLint _transform_uniform_id = 0;
-	GLint _model_uniform_id = 0;
-	GLint _view_uniform_id = 0;
-	GLint _projection_uniform_id = 0;
-	GLint _time_uniform_id = 0;
 
 	GLfloat _model_mat[16] = {};
 	GLfloat _view_mat[16] = {};

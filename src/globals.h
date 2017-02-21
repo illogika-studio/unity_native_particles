@@ -56,12 +56,12 @@ const static char* gl_func_names[] = {
 
 static const size_t gl_num_funcs = sizeof(gl_func_names) / sizeof(char*);
 static void* gl_funcs[gl_num_funcs];
-#define oglCreateShaderProgramv	((PFNGLCREATESHADERPROGRAMVPROC)gl_funcs[0])
+#define oglCreateShaderProgramv		((PFNGLCREATESHADERPROGRAMVPROC)gl_funcs[0])
 #define oglGenProgramPipelines		((PFNGLGENPROGRAMPIPELINESPROC)gl_funcs[1])
 #define oglBindProgramPipeline		((PFNGLBINDPROGRAMPIPELINEPROC)gl_funcs[2])
-#define oglUseProgramStages		((PFNGLUSEPROGRAMSTAGESPROC)gl_funcs[3])
+#define oglUseProgramStages			((PFNGLUSEPROGRAMSTAGESPROC)gl_funcs[3])
 #define oglProgramUniform4fv		((PFNGLPROGRAMUNIFORM4FVPROC)gl_funcs[4])
-#define oglGetProgramiv			((PFNGLGETPROGRAMIVPROC)gl_funcs[5])
+#define oglGetProgramiv				((PFNGLGETPROGRAMIVPROC)gl_funcs[5])
 #define oglGetProgramInfoLog		((PFNGLGETPROGRAMINFOLOGPROC)gl_funcs[6])
 #define oglGenVertexArrays			((PFNGLGENVERTEXARRAYSPROC)gl_funcs[7])
 #define oglBindVertexArray			((PFNGLBINDVERTEXARRAYPROC)gl_funcs[8])
@@ -73,7 +73,7 @@ static void* gl_funcs[gl_num_funcs];
 #define oglUseProgram				((PFNGLUSEPROGRAMPROC)gl_funcs[14])
 #define oglDisableVertexAttribArray ((PFNGLDISABLEVERTEXATTRIBARRAYPROC)gl_funcs[15])
 #define oglDeleteVertexArrays		((PFNGLDELETEVERTEXARRAYSPROC)gl_funcs[16])
-#define oglBindFragDataLocation	((PFNGLBINDFRAGDATALOCATIONPROC)gl_funcs[17])
+#define oglBindFragDataLocation		((PFNGLBINDFRAGDATALOCATIONPROC)gl_funcs[17])
 #define oglActiveShaderProgram		((PFNGLACTIVESHADERPROGRAMPROC)gl_funcs[18])
 #define oglGetUniformLocation		((PFNGLGETUNIFORMLOCATIONPROC)gl_funcs[19])
 #define oglProgramUniformMatrix4fv	((PFNGLPROGRAMUNIFORMMATRIX4FVPROC)gl_funcs[20])
@@ -94,6 +94,8 @@ static void* gl_funcs[gl_num_funcs];
 #define oglDeleteShader				((PFNGLDELETESHADERPROC)gl_funcs[35])
 #define oglDeleteProgram			((PFNGLDELETEPROGRAMPROC)gl_funcs[36])
 #define oglUniform1f				((PFNGLUNIFORM1FPROC)gl_funcs[37])
+
+
 
 static inline int gl_program_was_linked(int id) {
 	int result;
@@ -138,7 +140,7 @@ static inline void gl_error_string(char* msg) {
 	}
 }
 
-static int init_gl_funcs() {
+static int gl_init_funcs() {
 	for (int i = 0; i < gl_num_funcs; ++i) {
 		gl_funcs[i] = wglGetProcAddress(gl_func_names[i]);
 		if (!gl_funcs[i]) {
