@@ -104,8 +104,19 @@ void Renderer::init_opengl() {
 	oglBufferData(GL_ARRAY_BUFFER, sizeof(quad),
 			quad, GL_STATIC_DRAW);
 
+	/* Use 3 separate buffers to map directly to the data arrays. */
 	oglGenBuffers(1, &locations[loc_transform_pos].id);
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
+	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3),
+			nullptr, GL_STREAM_DRAW);
+
+	oglGenBuffers(1, &locations[loc_transform_rot].id);
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
+	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3),
+			nullptr, GL_STREAM_DRAW);
+
+	oglGenBuffers(1, &locations[loc_transform_scale].id);
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
 	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3),
 			nullptr, GL_STREAM_DRAW);
 
@@ -170,10 +181,31 @@ void Renderer::render(float time, float delta_time) {
 	oglUniformMatrix4fv(uniforms[u_proj].id, 1, GL_FALSE, _projection_mat);
 	oglUniform1f(uniforms[u_time].id, time);
 
-	/* VBO */
+	/* VBOs */
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
 	oglEnableVertexAttribArray(loc_vert_pos);
 	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
+	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf.
+	oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.pos);
+	oglEnableVertexAttribArray(loc_transform_pos);
+	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+	//oglVertexAttribDivisor(loc_transform_pos, 1); // 1 per object
+
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
+	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW);
+	oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.rot);
+	oglEnableVertexAttribArray(loc_transform_rot);
+	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+	//oglVertexAttribDivisor(loc_transform_rot, 1); // 1 per object
+
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
+	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW);
+	oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.scale);
+	oglEnableVertexAttribArray(loc_transform_scale);
+	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+	//oglVertexAttribDivisor(loc_transform_scale, 1); // 1 per object
 
 	for (int i = 0; i < _data.size; ++i) {
 		GLfloat t[16] = {
@@ -185,6 +217,12 @@ void Renderer::render(float time, float delta_time) {
 
 		glDrawArrays(GL_TRIANGLE_STRIP, GL_POINTS, 4);
 	}
+
+	//glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, ParticlesCount);
+	oglDisableVertexAttribArray(loc_vert_pos);
+	oglDisableVertexAttribArray(loc_transform_pos);
+	oglDisableVertexAttribArray(loc_transform_rot);
+	oglDisableVertexAttribArray(loc_transform_scale);
 
 	GL_CHECK_ERROR();
 }

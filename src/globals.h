@@ -52,6 +52,8 @@ const static char* gl_func_names[] = {
 	, "glDeleteShader"
 	, "glDeleteProgram"
 	, "glUniform1f"
+	, "glBufferSubData"
+	, "glVertexAttribDivisor"
 };
 
 static const size_t gl_num_funcs = sizeof(gl_func_names) / sizeof(char*);
@@ -94,6 +96,8 @@ static void* gl_funcs[gl_num_funcs];
 #define oglDeleteShader				((PFNGLDELETESHADERPROC)gl_funcs[35])
 #define oglDeleteProgram			((PFNGLDELETEPROGRAMPROC)gl_funcs[36])
 #define oglUniform1f				((PFNGLUNIFORM1FPROC)gl_funcs[37])
+#define oglBufferSubData			((PFNGLBUFFERSUBDATAPROC)gl_funcs[38])
+#define oglVertexAttribDivisor		((PFNGLVERTEXATTRIBDIVISORPROC)gl_funcs[39])
 
 
 
