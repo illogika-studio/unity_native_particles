@@ -42,6 +42,7 @@ Unity easily renders 300 000 to 400 000 particles at 30fps. We currently only re
 
 - Unity Shuriken : 300 000 to 400 000 particles at 30fps.
 - Basic CPU simulation copying data in uniforms for every particle : 100 000 at 30fps.
+- Don't use vertexAttribPointer for each particle : 200 000 at 30fps.
 
 ## Original Quote - Système de particules flexible et personnalisable
 
