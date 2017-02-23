@@ -66,3 +66,5 @@ DerivedData/
 .DS_Store
 Thumbs.db
 Thumbs.db.meta
+
+*.dll

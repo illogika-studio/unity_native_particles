@@ -5,11 +5,12 @@
 #define OUTPUT_ERROR(format, ...) printf("%s(%d) : %s() : " format "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #define OUTPUT_MSG(format, ...) printf("" format "\n", ##__VA_ARGS__)
 
+static char _err[64] = "";
 #define GL_CHECK_ERROR() 	{ \
-	char err[256] = ""; \
-	gl_error_string(err); \
-	if (strlen(err) != 0) { \
-		OUTPUT_ERROR("OpenGL error : %s", err); \
+	gl_error_string(_err); \
+	if (strlen(_err) != 0) { \
+		OUTPUT_ERROR("OpenGL error : %s", _err); \
+		memset(_err, 0, sizeof(_err)); \
 	} \
 }
 
@@ -54,6 +55,7 @@ const static char* gl_func_names[] = {
 	, "glUniform1f"
 	, "glBufferSubData"
 	, "glVertexAttribDivisor"
+	, "glDrawArraysInstanced"
 };
 
 static const size_t gl_num_funcs = sizeof(gl_func_names) / sizeof(char*);
@@ -98,6 +100,7 @@ static void* gl_funcs[gl_num_funcs];
 #define oglUniform1f				((PFNGLUNIFORM1FPROC)gl_funcs[37])
 #define oglBufferSubData			((PFNGLBUFFERSUBDATAPROC)gl_funcs[38])
 #define oglVertexAttribDivisor		((PFNGLVERTEXATTRIBDIVISORPROC)gl_funcs[39])
+#define oglDrawArraysInstanced		((PFNGLDRAWARRAYSINSTANCEDPROC)gl_funcs[40])
 
 
 
@@ -144,7 +147,7 @@ static inline void gl_error_string(char* msg) {
 	}
 }
 
-static int gl_init_funcs() {
+static inline int gl_init_funcs() {
 	for (int i = 0; i < gl_num_funcs; ++i) {
 		gl_funcs[i] = wglGetProcAddress(gl_func_names[i]);
 		if (!gl_funcs[i]) {

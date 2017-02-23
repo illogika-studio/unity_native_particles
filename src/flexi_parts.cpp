@@ -12,7 +12,7 @@
 static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType event_type);
 
 Renderer* renderer = nullptr;
-int particle_qty = 200000;
+int particle_qty = 100;
 bool disable_flx = false;
 float _time = 0.f;
 float _delta_time = 0.f;
@@ -125,7 +125,7 @@ FP(void) flx_update(int eventId, float time, float delta_time) {
 
 	_time = time;
 	_delta_time = delta_time;
-	renderer->update(_time, _delta_time);
+	//renderer->update(_time, _delta_time);
 };
 
 FP(void) flx_init(int32_t particle_qty) {
