@@ -22,44 +22,6 @@ Renderer::~Renderer()
 void Renderer::init_opengl() {
 
 	OUTPUT_MSG("OpenGL version : %s", glGetString(GL_VERSION));
-	//OUTPUT_MSG("OpenGL supported extensions :\n%s", glGetString(GL_EXTENSIONS));
-	GL_CHECK_ERROR();
-
-	/* CANT MAKE IT WORK :(
-	_vert_shader_id = oglCreateShaderProgramv(GL_VERTEX_SHADER, 1,
-			&vert_shader_src);
-	_frag_shader_id = oglCreateShaderProgramv(GL_FRAGMENT_SHADER, 1,
-			&frag_shader_src);
-
-	DEBUG_GL();
-
-	oglGenProgramPipelines(1, &_pipeline_id);
-	oglBindProgramPipeline(_pipeline_id);
-	oglUseProgramStages(_pipeline_id, GL_VERTEX_SHADER_BIT, _vert_shader_id);
-	oglUseProgramStages(_pipeline_id, GL_FRAGMENT_SHADER_BIT, _frag_shader_id);
-
-	int was_init = 1;
-	was_init *= gl_program_was_linked(_vert_shader_id);
-	was_init *= gl_program_was_linked(_frag_shader_id);
-	was_init *= gl_program_was_linked(_pipeline_id);
-
-	if (!was_init) {
-		OUTPUT_ERROR("Problem initializing OpenGL. Will not render anything.\n");
-		return;
-	}
-
-	//_transform_mat_id = oglGetUniformLocation(_pipeline_id, "transform");
-	//if (_transform_mat_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
-
-	_model_mat_id = oglGetUniformLocation(_vert_shader_id, "model_mat");
-	if (_model_mat_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
-
-	_view_mat_id = oglGetUniformLocation(_vert_shader_id, "view_mat");
-	if (_view_mat_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
-
-	_projection_mat_id = oglGetUniformLocation(_vert_shader_id, "proj_mat");
-	if (_projection_mat_id == -1) OUTPUT_ERROR("Problem getting uniform location.");
-	*/
 
 	/* Less fun shader compiling. */
 	_pipeline_id = oglCreateProgram();
@@ -96,6 +58,7 @@ void Renderer::init_opengl() {
 
 	GL_CHECK_ERROR();
 
+	oglGenVertexArrays(1, &_vertex_array_id);
 	oglGenBuffers(1, &locations[loc_vert_pos].id);
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
 	oglBufferData(GL_ARRAY_BUFFER, sizeof(quad),
@@ -117,29 +80,25 @@ void Renderer::init_opengl() {
 	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3),
 			nullptr, GL_STREAM_DRAW);
 
-	oglGenVertexArrays(1, &_vertex_array_id);
 	oglBindVertexArray(_vertex_array_id);
-
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
-	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 	oglEnableVertexAttribArray(loc_vert_pos);
+	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
 
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
-	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-	oglVertexAttribDivisor(loc_transform_pos, 1);
 	oglEnableVertexAttribArray(loc_transform_pos);
+	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+	oglVertexAttribDivisor(loc_transform_pos, 1);
 
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
-	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-	oglVertexAttribDivisor(loc_transform_rot, 1);
 	oglEnableVertexAttribArray(loc_transform_rot);
+	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+	oglVertexAttribDivisor(loc_transform_rot, 1);
 
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
-	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-	oglVertexAttribDivisor(loc_transform_scale, 1);
 	oglEnableVertexAttribArray(loc_transform_scale);
-
-	//oglVertexAttribDivisor(loc_vert_pos, 0); // same for everyone
+	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+	oglVertexAttribDivisor(loc_transform_scale, 1);
 
 	oglBindVertexArray(0);
 
@@ -221,25 +180,25 @@ void Renderer::render(float time, float delta_time) {
 	oglUniform1f(uniforms[u_time].id, time);
 
 	/* VBOs */
-	oglVertexAttribDivisor(loc_transform_pos, 1);
-	oglVertexAttribDivisor(loc_transform_rot, 1);
-	oglVertexAttribDivisor(loc_transform_scale, 1);
 
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
-	oglEnableVertexAttribArray(loc_vert_pos);
-	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
+//	oglEnableVertexAttribArray(loc_vert_pos);
+//	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
 
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
-	oglEnableVertexAttribArray(loc_transform_pos);
-	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
+//	oglEnableVertexAttribArray(loc_transform_pos);
+//	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//	oglVertexAttribDivisor(loc_transform_pos, 1);
 
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
-	oglEnableVertexAttribArray(loc_transform_rot);
-	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
+//	oglEnableVertexAttribArray(loc_transform_rot);
+//	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//	oglVertexAttribDivisor(loc_transform_rot, 1);
 
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
-	oglEnableVertexAttribArray(loc_transform_scale);
-	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
+//	oglEnableVertexAttribArray(loc_transform_scale);
+//	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//	oglVertexAttribDivisor(loc_transform_scale, 1);
 
 
 //	for (int i = 0; i < _data.size; ++i) {
@@ -253,12 +212,15 @@ void Renderer::render(float time, float delta_time) {
 //		glDrawArrays(GL_TRIANGLE_STRIP, GL_POINTS, 4);
 //	}
 
-	oglDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, _data.size);
 
-	oglDisableVertexAttribArray(loc_vert_pos);
-	oglDisableVertexAttribArray(loc_transform_pos);
-	oglDisableVertexAttribArray(loc_transform_rot);
-	oglDisableVertexAttribArray(loc_transform_scale);
+	oglBindVertexArray(_vertex_array_id);
+	oglDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, _data.size);
+	oglBindVertexArray(0);
+
+//	oglDisableVertexAttribArray(loc_vert_pos);
+//	oglDisableVertexAttribArray(loc_transform_pos);
+//	oglDisableVertexAttribArray(loc_transform_rot);
+//	oglDisableVertexAttribArray(loc_transform_scale);
 
 	GL_CHECK_ERROR();
 }
