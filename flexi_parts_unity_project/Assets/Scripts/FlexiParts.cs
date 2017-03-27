@@ -36,6 +36,11 @@ public class FlexiParts : MonoBehaviour {
 		flx_init(10000);
 	}
 
+	//	private void Start()
+	//	{
+	//		flx_init(10000);
+	//	}
+
 	IEnumerator Start()
 	{
 		yield return StartCoroutine(CallPluginAtEndOfFrames());
@@ -49,13 +54,11 @@ public class FlexiParts : MonoBehaviour {
 	void LateUpdate()
 	{ }
 
-	//void OnPostRender()
+	//void OnRenderObject()
 	//{
-	//	flx_set_time(Time.timeSinceLevelLoad);
-	//	flx_set_delta_time(Time.deltaTime);
-	//	flx_set_mvp(Mat4ToFloat16(transform.localToWorldMatrix),
-	//			Mat4ToFloat16(Camera.main.worldToCameraMatrix),
-	//			Mat4ToFloat16(Camera.main.projectionMatrix));
+	//	flx_set_mvp(Mat4ToFloat16Row(transform.localToWorldMatrix),
+	//			Mat4ToFloat16Row(Camera.main.worldToCameraMatrix),
+	//			Mat4ToFloat16Row(Camera.main.projectionMatrix));
 
 	//	GL.IssuePluginEvent(flx_get_render_event_func(), 1);
 	//}

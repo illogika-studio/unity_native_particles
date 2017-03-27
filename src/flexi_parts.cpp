@@ -12,7 +12,7 @@
 static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType event_type);
 
 Renderer* renderer = nullptr;
-int particle_qty = 100;
+int particle_qty = 100000;
 bool disable_flx = false;
 float _time = 0.f;
 float _delta_time = 0.f;
@@ -71,9 +71,6 @@ FP(void) RegisterPlugin() {
 #endif
 
 static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType event_type) {
-	if (disable_flx)
-		return;
-
 	switch (event_type) {
 		case kUnityGfxDeviceEventInitialize:
 		{
@@ -99,11 +96,9 @@ static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType
 		} break;
 		case kUnityGfxDeviceEventBeforeReset:
 		{
-			//TODO: user Direct3D 9 code
 		} break;
 		case kUnityGfxDeviceEventAfterReset:
 		{
-			//TODO: user Direct3D 9 code
 		} break;
 	};
 }
@@ -125,7 +120,7 @@ FP(void) flx_update(int eventId, float time, float delta_time) {
 
 	_time = time;
 	_delta_time = delta_time;
-	//renderer->update(_time, _delta_time);
+	renderer->update(_time, _delta_time);
 };
 
 FP(void) flx_init(int32_t particle_qty) {

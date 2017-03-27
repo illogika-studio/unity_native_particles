@@ -57,8 +57,11 @@ void Renderer::init_opengl() {
 	gl_init_uniforms(uniforms, uniforms_num, _pipeline_id);
 
 	GL_CHECK_ERROR();
+	OUTPUT_MSG("%p, %p", wglGetCurrentContext(), wglGetCurrentDC());
 
 	oglGenVertexArrays(1, &_vertex_array_id);
+	oglBindVertexArray(_vertex_array_id);
+
 	oglGenBuffers(1, &locations[loc_vert_pos].id);
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
 	oglBufferData(GL_ARRAY_BUFFER, sizeof(quad),
@@ -80,7 +83,6 @@ void Renderer::init_opengl() {
 	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3),
 			nullptr, GL_STREAM_DRAW);
 
-	oglBindVertexArray(_vertex_array_id);
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
 	oglEnableVertexAttribArray(loc_vert_pos);
 	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
@@ -106,6 +108,7 @@ void Renderer::init_opengl() {
 }
 
 void Renderer::detroy_opengl() {
+	OUTPUT_MSG("destroy OpenGL\n");
 	oglDeleteVertexArrays(1, &_vertex_array_id);
 	gl_delete_locations(locations, locations_num, _pipeline_id);
 
@@ -150,20 +153,17 @@ void Renderer::update(float time, float delta_time) {
 }
 
 void Renderer::render(float time, float delta_time) {
-	update(time, delta_time);
-	OUTPUT_MSG("Rendering");
+	//oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
+	//oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf.
+	//oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.pos);
 
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
-	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf.
-	oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.pos);
+	//oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
+	//oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW);
+	//oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.rot);
 
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
-	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW);
-	oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.rot);
-
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
-	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW);
-	oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.scale);
+	//oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
+	//oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW);
+	//oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.scale);
 
 	/* Basic render state. */
 	glDisable(GL_CULL_FACE);
@@ -180,47 +180,44 @@ void Renderer::render(float time, float delta_time) {
 	oglUniform1f(uniforms[u_time].id, time);
 
 	/* VBOs */
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
+	oglEnableVertexAttribArray(loc_vert_pos);
+	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
 
-//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
-//	oglEnableVertexAttribArray(loc_vert_pos);
-//	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
+	oglEnableVertexAttribArray(loc_transform_pos);
+	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//	//oglVertexAttribDivisor(loc_transform_pos, 1);
 
-//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
-//	oglEnableVertexAttribArray(loc_transform_pos);
-//	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-//	oglVertexAttribDivisor(loc_transform_pos, 1);
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
+	oglEnableVertexAttribArray(loc_transform_rot);
+	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//	//oglVertexAttribDivisor(loc_transform_rot, 1);
 
-//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
-//	oglEnableVertexAttribArray(loc_transform_rot);
-//	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-//	oglVertexAttribDivisor(loc_transform_rot, 1);
+	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
+	oglEnableVertexAttribArray(loc_transform_scale);
+	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//	//oglVertexAttribDivisor(loc_transform_scale, 1);
 
-//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
-//	oglEnableVertexAttribArray(loc_transform_scale);
-//	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-//	oglVertexAttribDivisor(loc_transform_scale, 1);
+	for (int i = 0; i < _data.size; ++i) {
+		GLfloat t[16] = {
+			_data.pos[i].x, _data.pos[i].y, _data.pos[i].z
+ 			, _data.rot[i].x, _data.rot[i].y, _data.rot[i].z
+			, _data.scale[i].x, _data.scale[i].y, _data.scale[i].z
+		};
+		oglUniformMatrix3fv(uniforms[u_transform].id, 1, GL_FALSE, t);
 
+		glDrawArrays(GL_TRIANGLE_STRIP, GL_POINTS, 4);
+	}
 
-//	for (int i = 0; i < _data.size; ++i) {
-//		GLfloat t[16] = {
-//			_data.pos[i].x, _data.pos[i].y, _data.pos[i].z
-// 			, _data.rot[i].x, _data.rot[i].y, _data.rot[i].z
-//			, _data.scale[i].x, _data.scale[i].y, _data.scale[i].z
-//		};
-//		oglUniformMatrix3fv(uniforms[u_transform].id, 1, GL_FALSE, t);
+	//oglBindVertexArray(_vertex_array_id);
+	//oglDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, _data.size);
+	//oglBindVertexArray(0);
 
-//		glDrawArrays(GL_TRIANGLE_STRIP, GL_POINTS, 4);
-//	}
-
-
-	oglBindVertexArray(_vertex_array_id);
-	oglDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, _data.size);
-	oglBindVertexArray(0);
-
-//	oglDisableVertexAttribArray(loc_vert_pos);
-//	oglDisableVertexAttribArray(loc_transform_pos);
-//	oglDisableVertexAttribArray(loc_transform_rot);
-//	oglDisableVertexAttribArray(loc_transform_scale);
+	oglDisableVertexAttribArray(loc_vert_pos);
+	oglDisableVertexAttribArray(loc_transform_pos);
+	oglDisableVertexAttribArray(loc_transform_rot);
+	oglDisableVertexAttribArray(loc_transform_scale);
 
 	GL_CHECK_ERROR();
 }
