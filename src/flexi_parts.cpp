@@ -12,7 +12,7 @@
 static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType event_type);
 
 Renderer* renderer = nullptr;
-int particle_qty = 100000;
+int particle_qty = 10'000;
 bool disable_flx = false;
 float _time = 0.f;
 float _delta_time = 0.f;
