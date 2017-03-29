@@ -23,10 +23,10 @@ Things are rendered later during the frame. Rendering is quite hacky and needs l
 
 - Architecture that allows enabling and disabling various optimizations to benchmark easily.
 - Add basic features such as life time, continuous spawning, bursts, respawn, multiple systems, world spawning...
-- Investigate CPU simulation vs. SIMD CPU simulation vs. GPU simulation (transform feedback).
+- Investigate CPU simulation vs. SIMD CPU simulation vs. GPU simulation (not transform feedback/stream output, compute shader instead).
 - Investigate Unity UI and Post Processes.
 - Investigate whether we can render while in edit-mode in Unity.
-- OpenGL : Use instancing and buffers to pass data to the GPU, instead of uniforms (really bad).
+~~- OpenGL : Use instancing and buffers to pass data to the GPU, instead of uniforms (really bad).~~ DONE +x particles.
 - Investigate keeping different particle systems contiguous in memory, and use texture atlas for rendering.
 - Investigate smooth particles (test Z-buffer, need render target).
 - Investigate fill rate optimization, by modeling the particle's mesh to hug the sprite.
@@ -37,8 +37,6 @@ Things are rendered later during the frame. Rendering is quite hacky and needs l
 - Particle physics!?
 
 ## Benchmarking
-
-Unity easily renders 300 000 to 400 000 particles at 30fps. We currently only render 100 000. BUT, we are copying so much data, this is a great sign we can improve a lot!
 
 - Unity Shuriken : 300 000 to 400 000 particles at 30fps.
 - Basic CPU simulation copying data in uniforms for every particle : 100 000 at 30fps.

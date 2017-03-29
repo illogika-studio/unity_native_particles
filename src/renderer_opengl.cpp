@@ -37,7 +37,7 @@ void Renderer::init_opengl() {
 	oglAttachShader(_pipeline_id, _frag_shader_id);
 
 	// bind the attribute locations (inputs)
-	//gl_bind_locations(locations, locations_num, _pipeline_id); // Not needed when layout pos provided?
+	//gl_bind_locations(locations, locations_num, _pipeline_id); // Not needed when layout pos provided in shader.
 
 	// bind the FragDataLocation (output)
 	oglBindFragDataLocation(_pipeline_id, 0, "frag_color");
