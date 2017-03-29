@@ -18,6 +18,7 @@ Use the FlexiParts.cs script to interface with the library.
 ~~One of the only optimization that is used is SOA for the simulation data (particle transforms).
 The system updates position, rotation and scale on the CPU called by Unity's Update loop.
 Things are rendered later during the frame. Rendering is quite hacky and needs love (copying uniforms for every particle).~~
+
 Love has been given, the code appreciated it and rewarded us with more particles.
 
 ## Todo and Future
