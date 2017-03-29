@@ -56,6 +56,7 @@ const static char* gl_func_names[] = {
 	, "glBufferSubData"
 	, "glVertexAttribDivisor"
 	, "glDrawArraysInstanced"
+	, "glIsVertexArray"
 };
 
 static const size_t gl_num_funcs = sizeof(gl_func_names) / sizeof(char*);
@@ -101,6 +102,7 @@ static void* gl_funcs[gl_num_funcs];
 #define oglBufferSubData			((PFNGLBUFFERSUBDATAPROC)gl_funcs[38])
 #define oglVertexAttribDivisor		((PFNGLVERTEXATTRIBDIVISORPROC)gl_funcs[39])
 #define oglDrawArraysInstanced		((PFNGLDRAWARRAYSINSTANCEDPROC)gl_funcs[40])
+#define oglIsVertexArray			((PFNGLISVERTEXARRAYPROC)gl_funcs[41])
 
 
 

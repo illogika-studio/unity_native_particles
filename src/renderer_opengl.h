@@ -125,6 +125,11 @@ public:
 	}
 
 private:
+	void InitVAO();
+	void BindAndFillVBOWithVAO();
+	void BindAndFillVBOWithoutVAO(bool enable_attrib_divisor = false);
+	void DrawDataWithUniforms();
+
 	ParticleData _data;
 
 	GLuint _pipeline_id = 0;
