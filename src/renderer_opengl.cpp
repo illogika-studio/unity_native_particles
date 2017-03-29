@@ -211,9 +211,9 @@ void Renderer::BindAndFillVBOWithoutVAO(bool enable_attrib_divisor)
 	oglBufferData(GL_ARRAY_BUFFER, _data.size * sizeof(vec3), nullptr, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf.
 	oglBufferSubData(GL_ARRAY_BUFFER, 0, _data.size * sizeof(vec3), _data.pos);
 	oglEnableVertexAttribArray(loc_transform_pos);
-	oglVertexAttribDivisor(loc_transform_pos, 1);
+	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
 	if (enable_attrib_divisor) {
-		oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+		oglVertexAttribDivisor(loc_transform_pos, 1);
 	}
 
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
@@ -235,6 +235,7 @@ void Renderer::BindAndFillVBOWithoutVAO(bool enable_attrib_divisor)
 	}
 }
 
+/* Naive pushing to uniforms. */
 void Renderer::DrawDataWithUniforms()
 {
 	for (int i = 0; i < _data.size; ++i) {
