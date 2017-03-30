@@ -1,3 +1,4 @@
+#pragma once
 #include "globals.h"
 
 #define CODE(...) #__VA_ARGS__

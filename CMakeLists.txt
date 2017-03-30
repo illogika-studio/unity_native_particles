@@ -20,6 +20,8 @@ if (WIN32)
 
 	set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 14)
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET})
+	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}") # no-exceptions
+	set(CMAKE_CXX_FLAGS "/GR-") # no rtti
 	find_package(OpenGL REQUIRED)
 	target_link_libraries(${TARGET} ${OPENGL_LIBRARIES})
 

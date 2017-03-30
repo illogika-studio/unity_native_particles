@@ -15,7 +15,7 @@ public class UnityNativeParticles : MonoBehaviour {
 #else
 	[DllImport("libnativeparticles")]
 #endif
-	static extern void flx_update(int eventId, float time, float delta_time);
+	static extern void flx_update(float delta_time);
 
 #if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
 	[DllImport("__Internal")]
@@ -43,7 +43,7 @@ public class UnityNativeParticles : MonoBehaviour {
 
 	void Update()
 	{
-		flx_update(1, Time.time, Time.deltaTime);
+		flx_update(Time.deltaTime);
 	}
 
 	void LateUpdate()
