@@ -28,7 +28,7 @@ Love has been given, the code appreciated it and rewarded us with more particles
 - Investigate CPU simulation vs. SIMD CPU simulation vs. GPU simulation (not transform feedback/stream output, compute shader instead).
 - Investigate Unity UI and Post Processes.
 - Investigate whether we can render while in edit-mode in Unity.
-- ~~OpenGL : Use instancing and buffers to pass data to the GPU, instead of uniforms (really bad).~~ DONE +x particles.
+- ~~OpenGL : Use instancing and buffers to pass data to the GPU, instead of uniforms (really bad).~~ DONE +150 000 particles.
 - Investigate keeping different particle systems contiguous in memory, and use texture atlas for rendering.
 - Investigate smooth particles (test Z-buffer, need render target).
 - Investigate fill rate optimization, by modeling the particle's mesh to hug the sprite.

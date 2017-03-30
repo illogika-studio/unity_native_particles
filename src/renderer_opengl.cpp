@@ -2,8 +2,8 @@
 #include "shader.h"
 #include "globals.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 Renderer::Renderer(GLsizei particle_qty)
 	: _data(particle_qty)
@@ -20,7 +20,6 @@ Renderer::~Renderer()
 {}
 
 void Renderer::init_opengl() {
-
 	OUTPUT_MSG("OpenGL version : %s", glGetString(GL_VERSION));
 
 	/* Less fun shader compiling. */
@@ -85,9 +84,9 @@ void Renderer::update(float time, float delta_time) {
 
 	/* Position */
 	for (int i = 0; i < _data.size; ++i) {
-		if (_data.pos[i].y > 10.f && _data.speed[i].y > 0.f) {
+		if (_data.pos[i].y > _y_extent && _data.speed[i].y > 0.f) {
 			_data.speed[i].y = -_data.speed[i].y;
-		} else if (_data.pos[i].y < -10.f && _data.speed[i].y < 0.f) {
+		} else if (_data.pos[i].y < -_y_extent && _data.speed[i].y < 0.f) {
 			_data.speed[i].y = -_data.speed[i].y;
 		}
 		_data.pos[i] += _data.speed[i] * delta_time;
@@ -110,7 +109,7 @@ void Renderer::update(float time, float delta_time) {
 void Renderer::render(float time, float delta_time) {
 	OUTPUT_MSG("Rendering");
 
-	/* Unity debugging. */
+	/* Unity will drop VAO after 1-2 frames. After that we are fine. */
 	if (oglIsVertexArray(_vertex_array_id) == GL_FALSE) {
 		OUTPUT_MSG("Recreating VAO");
 		InitVAO();
@@ -135,10 +134,10 @@ void Renderer::render(float time, float delta_time) {
 	oglDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, _data.size);
 	oglBindVertexArray(0);
 
-	//oglDisableVertexAttribArray(loc_vert_pos);
-	//oglDisableVertexAttribArray(loc_transform_pos);
-	//oglDisableVertexAttribArray(loc_transform_rot);
-	//oglDisableVertexAttribArray(loc_transform_scale);
+	oglDisableVertexAttribArray(loc_vert_pos);
+	oglDisableVertexAttribArray(loc_transform_pos);
+	oglDisableVertexAttribArray(loc_transform_rot);
+	oglDisableVertexAttribArray(loc_transform_scale);
 
 	GL_CHECK_ERROR();
 }
@@ -184,7 +183,7 @@ void Renderer::InitVAO()
 	GL_CHECK_ERROR();
 }
 
-/* All we need is to push data, theoretically at least. */
+/* All we need is to push data. */
 void Renderer::BindAndFillVBOWithVAO()
 {
 	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);

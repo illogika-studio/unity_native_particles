@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <GL/gl.h>
 #include "glext.h"
-#include <stdio.h>
+#include <cstdio>
 
 static const int random_seed = 1029831;
 
@@ -143,4 +143,5 @@ private:
 
 	/* TODO: Expose these. */
 	const float _velocity = 0.01f;
+	const float _y_extent = 20.f;
 };

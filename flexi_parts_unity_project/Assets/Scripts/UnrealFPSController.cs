@@ -28,12 +28,13 @@ public class UnrealFPSController: MonoBehaviour {
 			h = Input.GetAxisRaw("Mouse X");
 			v = Input.GetAxisRaw("Mouse Y");
 			Vector3 f = new Vector3(-v, h, 0f);
-			f.Normalize();
 			f *= _mouse_sensitivity * Time.deltaTime;
+
 			_camera.transform.Rotate(f);
 			Vector3 a = _camera.transform.eulerAngles;
 			a.z = 0f;
 			_camera.transform.eulerAngles = a;
+
 
 			h = Input.GetAxisRaw("Horizontal");
 			v = Input.GetAxisRaw("Vertical");
@@ -46,6 +47,7 @@ public class UnrealFPSController: MonoBehaviour {
 			d.Normalize();
 			d *= Time.deltaTime * _move_speed;
 			_camera.transform.Translate(d, Space.World);
+
 		} else {
 			Cursor.visible = true;
 		}

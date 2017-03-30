@@ -4,15 +4,15 @@
 #include <windows.h>
 #include <IUnityInterface.h>
 #include <IUnityGraphics.h>
-#include <stdio.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdint>
 
 #define FP(...) extern "C" __VA_ARGS__ UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 
 static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType event_type);
 
 Renderer* renderer = nullptr;
-int particle_qty = 200'000;
+int particle_qty = 2'000'000;
 bool disable_flx = false;
 float _time = 0.f;
 float _delta_time = 0.f;
