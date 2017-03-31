@@ -100,11 +100,6 @@ void Renderer::render(float delta_time) {
 	oglDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, ParticleComponent::size());
 	oglBindVertexArray(0);
 
-	oglDisableVertexAttribArray(loc_vert_pos);
-	oglDisableVertexAttribArray(loc_transform_pos);
-	oglDisableVertexAttribArray(loc_transform_rot);
-	oglDisableVertexAttribArray(loc_transform_scale);
-
 	GL_CHECK_ERROR();
 }
 
@@ -113,37 +108,30 @@ void Renderer::InitVAO()
 	oglGenVertexArrays(1, &_vertex_array_id);
 	oglBindVertexArray(_vertex_array_id);
 
-	oglGenBuffers(1, &locations[loc_vert_pos].id);
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
+	/* This buffer never changes, always draws using quad. */
+	oglGenBuffers(1, &_vbo_vert_pos);
+	oglBindBuffer(GL_ARRAY_BUFFER, _vbo_vert_pos);
 	oglBufferData(GL_ARRAY_BUFFER, sizeof(quad),
 			quad, GL_STATIC_DRAW);
 	oglEnableVertexAttribArray(loc_vert_pos);
 	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
 
-	/* Use 3 separate buffers to map directly to the data arrays. */
-	oglGenBuffers(1, &locations[loc_transform_pos].id);
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
-	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3),
-			nullptr, GL_STREAM_DRAW);
-	oglEnableVertexAttribArray(loc_transform_pos);
-	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-	oglVertexAttribDivisor(loc_transform_pos, 1);
 
-	oglGenBuffers(1, &locations[loc_transform_rot].id);
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
-	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3),
-			nullptr, GL_STREAM_DRAW);
-	oglEnableVertexAttribArray(loc_transform_rot);
-	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-	oglVertexAttribDivisor(loc_transform_rot, 1);
+	/* Use 1 buffer, and all SoA sub data. */
+	oglGenBuffers(1, &_vbo_data);
+	oglBindBuffer(GL_ARRAY_BUFFER, _vbo_data);
 
-	oglGenBuffers(1, &locations[loc_transform_scale].id);
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
-	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3),
-			nullptr, GL_STREAM_DRAW);
-	oglEnableVertexAttribArray(loc_transform_scale);
-	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-	oglVertexAttribDivisor(loc_transform_scale, 1);
+	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::total_byte_size(), nullptr, GL_STREAM_DRAW);
+
+	GLuint offset = 0;
+	for (int i = 1; i <= 9; ++i) {
+		size_t pointer = i * ParticleComponent::size() * soa_vec3::element_byte_size();
+		oglBufferSubData(GL_ARRAY_BUFFER, offset, ParticleComponent::size() * soa_vec3::element_byte_size(), nullptr);
+		oglVertexAttribPointer(i, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(pointer));
+		oglVertexAttribDivisor(i, 1);
+		oglEnableVertexAttribArray(i);
+		offset += ParticleComponent::size() * soa_vec3::element_byte_size();
+	}
 
 	oglBindVertexArray(0);
 	GL_CHECK_ERROR();
@@ -152,65 +140,58 @@ void Renderer::InitVAO()
 /* All we need is to push data. */
 void Renderer::BindAndFillVBOWithVAO()
 {
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
-	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3), nullptr, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf.
-	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::size() * sizeof(vec3), ParticleComponent::pos_array());
+	oglBindBuffer(GL_ARRAY_BUFFER, _vbo_data);
+	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::total_byte_size(), nullptr, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf.
 
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
-	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3), nullptr, GL_STREAM_DRAW);
-	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::size() * sizeof(vec3), ParticleComponent::rot_array());
-
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
-	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3), nullptr, GL_STREAM_DRAW);
-	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::size() * sizeof(vec3), ParticleComponent::scale_array());
+	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::total_byte_size(), ParticleComponent::heap()); // Push everything!
 }
 
 /* If we aren't using VAOs. */
-void Renderer::BindAndFillVBOWithoutVAO(bool enable_attrib_divisor)
-{
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
-	oglEnableVertexAttribArray(loc_vert_pos);
-	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
-	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3), nullptr, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf.
-	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::size() * sizeof(vec3), ParticleComponent::pos_array());
-	oglEnableVertexAttribArray(loc_transform_pos);
-	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-	if (enable_attrib_divisor) {
-		oglVertexAttribDivisor(loc_transform_pos, 1);
-	}
-
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
-	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3), nullptr, GL_STREAM_DRAW);
-	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::size() * sizeof(vec3), ParticleComponent::rot_array());
-	oglEnableVertexAttribArray(loc_transform_rot);
-	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-	if (enable_attrib_divisor) {
-		oglVertexAttribDivisor(loc_transform_rot, 1);
-	}
-
-	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
-	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3), nullptr, GL_STREAM_DRAW);
-	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::size() * sizeof(vec3), ParticleComponent::scale_array());
-	oglEnableVertexAttribArray(loc_transform_scale);
-	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
-	if (enable_attrib_divisor) {
-		oglVertexAttribDivisor(loc_transform_scale, 1);
-	}
-}
+//void Renderer::BindAndFillVBOWithoutVAO(bool enable_attrib_divisor)
+//{
+//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_vert_pos].id);
+//	oglEnableVertexAttribArray(loc_vert_pos);
+//	oglVertexAttribPointer(loc_vert_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//
+//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_pos].id);
+//	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3), nullptr, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf.
+//	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::size() * sizeof(vec3), ParticleComponent::pos_array());
+//	oglEnableVertexAttribArray(loc_transform_pos);
+//	oglVertexAttribPointer(loc_transform_pos, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//	if (enable_attrib_divisor) {
+//		oglVertexAttribDivisor(loc_transform_pos, 1);
+//	}
+//
+//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_rot].id);
+//	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3), nullptr, GL_STREAM_DRAW);
+//	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::size() * sizeof(vec3), ParticleComponent::rot_array());
+//	oglEnableVertexAttribArray(loc_transform_rot);
+//	oglVertexAttribPointer(loc_transform_rot, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//	if (enable_attrib_divisor) {
+//		oglVertexAttribDivisor(loc_transform_rot, 1);
+//	}
+//
+//	oglBindBuffer(GL_ARRAY_BUFFER, locations[loc_transform_scale].id);
+//	oglBufferData(GL_ARRAY_BUFFER, ParticleComponent::size() * sizeof(vec3), nullptr, GL_STREAM_DRAW);
+//	oglBufferSubData(GL_ARRAY_BUFFER, 0, ParticleComponent::size() * sizeof(vec3), ParticleComponent::scale_array());
+//	oglEnableVertexAttribArray(loc_transform_scale);
+//	oglVertexAttribPointer(loc_transform_scale, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+//	if (enable_attrib_divisor) {
+//		oglVertexAttribDivisor(loc_transform_scale, 1);
+//	}
+//}
 
 /* Naive pushing to uniforms. */
-void Renderer::DrawDataWithUniforms()
-{
-	for (int i = 0; i < ParticleComponent::size(); ++i) {
-		GLfloat t[16] = {
-			ParticleComponent::pos_array()[i].x, ParticleComponent::pos_array()[i].y, ParticleComponent::pos_array()[i].z
-			, ParticleComponent::rot_array()[i].x, ParticleComponent::rot_array()[i].y, ParticleComponent::rot_array()[i].z
-			, ParticleComponent::scale_array()[i].x, ParticleComponent::scale_array()[i].y, ParticleComponent::scale_array()[i].z
-		};
-		oglUniformMatrix3fv(uniforms[u_transform].id, 1, GL_FALSE, t);
-
-		glDrawArrays(GL_TRIANGLE_STRIP, GL_POINTS, 4);
-	}
-}
+//void Renderer::DrawDataWithUniforms()
+//{
+//	for (int i = 0; i < ParticleComponent::size(); ++i) {
+//		GLfloat t[16] = {
+//			ParticleComponent::pos_array()[i].x, ParticleComponent::pos_array()[i].y, ParticleComponent::pos_array()[i].z
+//			, ParticleComponent::rot_array()[i].x, ParticleComponent::rot_array()[i].y, ParticleComponent::rot_array()[i].z
+//			, ParticleComponent::scale_array()[i].x, ParticleComponent::scale_array()[i].y, ParticleComponent::scale_array()[i].z
+//		};
+//		oglUniformMatrix3fv(uniforms[u_transform].id, 1, GL_FALSE, t);
+//
+//		glDrawArrays(GL_TRIANGLE_STRIP, GL_POINTS, 4);
+//	}
+//}

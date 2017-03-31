@@ -3,6 +3,7 @@
 #include <GL/gl.h>
 #include "glext.h"
 
+
 class Renderer {
 public:
 	Renderer();
@@ -19,14 +20,15 @@ public:
 private:
 	void InitVAO();
 	void BindAndFillVBOWithVAO();
-	void BindAndFillVBOWithoutVAO(bool enable_attrib_divisor = false);
-	void DrawDataWithUniforms();
-
+	//void BindAndFillVBOWithoutVAO(bool enable_attrib_divisor = false);
+	//void DrawDataWithUniforms();
 
 	GLuint _pipeline_id = 0;
 	GLuint _vert_shader_id = 0;
 	GLuint _frag_shader_id = 0;
 	GLuint _vertex_array_id = 0;
+	GLuint _vbo_vert_pos = 0;
+	GLuint _vbo_data = 0;
 
 	GLfloat _model_mat[16] = {};
 	GLfloat _view_mat[16] = {};

@@ -23,6 +23,16 @@ In Command Arguments, paste the projectPath command with the unity project path 
 
 **This has the added benefit of launching automatically Unity and the project when pressing "play" in Visual Studio.**
 
+## Debugging
+
+Crucial, **crucial** to read this: https://msdn.microsoft.com/en-us/library/605a12zt.aspx
+
+Project Properties > Debugging.
+In Command, paste your Unity path : C:\Program Files\Unity 5.5.2f1\Editor\Unity.exe
+In Command Arguments, paste the projectPath command with the flexiparts unity project path : -projectPath D:\illogika\RnD_FlexiParts\flexi_parts_unity_project
+
+**This has the added benefit of launching automatically Unity and the project when pressing "play" in Visual Studio.**
+
 ## Technical Details
 
 ~~One of the only optimization that is used is SOA for the simulation data (particle transforms).

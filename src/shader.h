@@ -40,9 +40,15 @@ struct location_info {
 };
 
 const int loc_vert_pos = 0;
-const int loc_transform_pos = 1;
-const int loc_transform_rot = 2;
-const int loc_transform_scale = 3;
+const int loc_transform_pos_x = 1;
+const int loc_transform_pos_y = 2;
+const int loc_transform_pos_z = 3;
+const int loc_transform_rot_x = 4;
+const int loc_transform_rot_y = 5;
+const int loc_transform_rot_z = 6;
+const int loc_transform_scale_x = 7;
+const int loc_transform_scale_y = 8;
+const int loc_transform_scale_z = 9;
 
 static location_info locations[] = {
 	  { "vert_pos", 0 }
@@ -65,6 +71,105 @@ static void gl_delete_locations(location_info arr[], const size_t s, const GLuin
 }
 
 static const char* vert_shader_src = CODE(
+	#version 450 core\n
+	layout (location = 0)	in vec3 vert_pos;
+	layout (location = 1)	in float pos_x;
+	layout (location = 2)	in float pos_y;
+	layout (location = 3)	in float pos_z;
+	layout (location = 4)	in float rot_x;
+	layout (location = 5)	in float rot_y;
+	layout (location = 6)	in float rot_z;
+	layout (location = 7)	in float scale_x;
+	layout (location = 8)	in float scale_y;
+	layout (location = 9)	in float scale_z;
+
+	uniform mat4 model_mat;
+	uniform mat4 view_mat;
+	uniform mat4 proj_mat;
+
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
+
+	// Using a 3x3 matrix.
+	mat4 calc_pos_mat3() {
+		float cos_a = cos(transform_mat[1][0]);
+		float cos_b = cos(transform_mat[1][1]);
+		float cos_g = cos(transform_mat[1][2]);
+		float sin_a = sin(transform_mat[1][0]);
+		float sin_b = sin(transform_mat[1][1]);
+		float sin_g = sin(transform_mat[1][2]);
+
+		mat4 t = mat4(
+			1.f, 0.f, 0.f, 0.f,
+			0.f, 1.f, 0.f, 0.f,
+			0.f, 0.f, 1.f, 0.f,
+			transform_mat[0][0], transform_mat[0][1], transform_mat[0][2], 1.f
+		);
+		mat4 r = mat4(
+			cos_b*cos_g, cos_b*sin_g, -sin_b, 0.f, 
+			cos_g*sin_a*sin_b - cos_a*sin_g, cos_a*cos_g + sin_a*sin_b*sin_g, cos_b*sin_a, 0.f, 
+			cos_a*cos_g*sin_b + sin_a*sin_g, -cos_g*sin_a + cos_a*sin_b*sin_g, cos_a*cos_b, 0.f, 
+			0.f, 0.f, 0.f, 1.f
+		);
+		mat4 s = mat4(
+			transform_mat[2][0], 0.f, 0.f, 0.f,
+			0.f, transform_mat[2][1], 0.f, 0.f,
+			0.f, 0.f, transform_mat[2][2], 0.f,
+			0.f, 0.f, 0.f, 1.f
+		);
+		return t * r * s;
+	}
+
+	// Using pos, rot, scale vec3
+	mat4 calc_pos_vec3() {
+		float cos_a = cos(rot_x);
+		float cos_b = cos(rot_y);
+		float cos_g = cos(rot_z);
+		float sin_a = sin(rot_x);
+		float sin_b = sin(rot_y);
+		float sin_g = sin(rot_z);
+
+		mat4 t = mat4(
+			1.f, 0.f, 0.f, 0.f,
+			0.f, 1.f, 0.f, 0.f,
+			0.f, 0.f, 1.f, 0.f,
+			pos_x, pos_y, pos_z, 1.f
+		);
+		mat4 r = mat4(
+			cos_b*cos_g, cos_b*sin_g, -sin_b, 0.f, 
+			cos_g*sin_a*sin_b - cos_a*sin_g, cos_a*cos_g + sin_a*sin_b*sin_g, cos_b*sin_a, 0.f, 
+			cos_a*cos_g*sin_b + sin_a*sin_g, -cos_g*sin_a + cos_a*sin_b*sin_g, cos_a*cos_b, 0.f, 
+			0.f, 0.f, 0.f, 1.f
+		);
+		mat4 s = mat4(
+			scale_x, 0.f, 0.f, 0.f,
+			0.f, scale_y, 0.f, 0.f,
+			0.f, 0.f, scale_z, 0.f,
+			0.f, 0.f, 0.f, 1.f
+		);
+		return t * r * s;
+	}
+
+	void main() {
+		//gl_Position = (proj_mat * view_mat * model_mat) * vec4(vert_position, 1.f);
+		//vec4 p = vec4(vert_position.x + sin(time), vert_position.yz, 1.f);
+		vec4 p = vec4(vert_pos, 1.f);
+		gl_Position = (proj_mat * view_mat * model_mat * calc_pos_vec3()) * p;
+		//gl_Position = vec4(vert_position, 1.f);
+	}\0
+);
+
+static const char* frag_shader_src = CODE(
+	#version 450 core\n
+	layout (location = 0)	out vec4 frag_color;
+
+	void main() {
+		frag_color = vec4(0.86, 0.62, 0.86, 0.5f);
+	}\0
+);
+
+static const char* vert_shader_src_backup = CODE(
 	#version 450 core\n
 	layout (location = 0)	in vec3 vert_pos;
 	layout (location = 1)	in vec3 transform_pos;
@@ -149,13 +254,3 @@ static const char* vert_shader_src = CODE(
 		//gl_Position = vec4(vert_position, 1.f);
 	}\0
 );
-
-static const char* frag_shader_src = CODE(
-	#version 450 core\n
-	layout (location = 0)	out vec4 frag_color;
-
-	void main() {
-		frag_color = vec4(0.86, 0.62, 0.86, 0.5f);
-	}\0
-);
-

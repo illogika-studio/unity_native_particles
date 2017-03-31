@@ -77,16 +77,16 @@ static void UNITY_INTERFACE_API on_graphics_device_event(UnityGfxDeviceEventType
 		{
 			unity.renderer_type = kUnityGfxRendererNull;
 
-			ParticleComponent::destroy();
-
 		} break;
 		case kUnityGfxDeviceEventBeforeReset:
 		{
-			OUTPUT_MSG("Before Reset")
+			OUTPUT_MSG("Before Reset");
+
 		} break;
 		case kUnityGfxDeviceEventAfterReset:
 		{
-			OUTPUT_MSG("AfterReset")
+			OUTPUT_MSG("AfterReset");
+
 		} break;
 	};
 }
