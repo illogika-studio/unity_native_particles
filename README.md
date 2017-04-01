@@ -28,7 +28,7 @@ Love has been given, the code appreciated it and rewarded us with more particles
 - Investigate CPU simulation vs. SIMD CPU simulation vs. GPU simulation (not transform feedback/stream output, compute shader instead).
 - Investigate Unity UI and Post Processes.
 - Investigate whether we can render while in edit-mode in Unity.
-- ~~OpenGL : Use instancing and buffers to pass data to the GPU, instead of uniforms (really bad).~~ DONE +150 000 particles.
+- ~~OpenGL : Use instancing and buffers to pass data to the GPU, instead of uniforms (really bad).~~ DONE x10 particles.
 - Investigate keeping different particle systems contiguous in memory, and use texture atlas for rendering.
 - Investigate smooth particles (test Z-buffer, need render target).
 - Investigate fill rate optimization, by modeling the particle's mesh to hug the sprite.
@@ -41,8 +41,9 @@ Love has been given, the code appreciated it and rewarded us with more particles
 ## Benchmarking
 
 - Unity Shuriken : 300 000 to 400 000 particles at 30fps.
-- Basic CPU simulation copying data in uniforms for every particle : 100 000 at 30fps.
-- Don't use vertexAttribPointer for each particle : 200 000 at 30fps.
+- Basic CPU + copying data in uniforms for every particle : 100 000 at 30fps.
+- Basic CPU + Don't use vertexAttribPointer for each particle : 200 000 at 30fps.
+- Basic CPU + Instancing : 2 000 000 at 30fps.
 
 ## Original Quote - Système de particules flexible et personnalisable
 
