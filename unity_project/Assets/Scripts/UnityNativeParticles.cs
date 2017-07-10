@@ -2,44 +2,39 @@
 using System.Collections;
 using System.Runtime.InteropServices;
 
-public class FlexiParts : MonoBehaviour {
+public class UnityNativeParticles : MonoBehaviour {
 #if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
 	[DllImport("__Internal")]
 #else
-	[DllImport("libflexiparts")]
+	[DllImport("libnativeparticles")]
 #endif
 	static extern void flx_init(System.Int32 particle_qty);
 
 #if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
 	[DllImport("__Internal")]
 #else
-	[DllImport("libflexiparts")]
+	[DllImport("libnativeparticles")]
 #endif
 	static extern void flx_update(int eventId, float time, float delta_time);
 
 #if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
 	[DllImport("__Internal")]
 #else
-	[DllImport("libflexiparts")]
+	[DllImport("libnativeparticles")]
 #endif
 	static extern System.IntPtr flx_get_render_event_func();
 
 #if (UNITY_IPHONE || UNITY_WEBGL) && !UNITY_EDITOR
 	[DllImport("__Internal")]
 #else
-	[DllImport("libflexiparts")]
+	[DllImport("libnativeparticles")]
 #endif
 	static extern void flx_set_mvp(float[] model, float[] view, float[] projection);
 
-	void Awake()
-	{
-		flx_init(10000);
-	}
-
-	//	private void Start()
-	//	{
-	//		flx_init(10000);
-	//	}
+	//void Awake()
+	//{
+	//	flx_init(10000);
+	//}
 
 	IEnumerator Start()
 	{
@@ -53,15 +48,6 @@ public class FlexiParts : MonoBehaviour {
 
 	void LateUpdate()
 	{ }
-
-	//void OnRenderObject()
-	//{
-	//	flx_set_mvp(Mat4ToFloat16Row(transform.localToWorldMatrix),
-	//			Mat4ToFloat16Row(Camera.main.worldToCameraMatrix),
-	//			Mat4ToFloat16Row(Camera.main.projectionMatrix));
-
-	//	GL.IssuePluginEvent(flx_get_render_event_func(), 1);
-	//}
 
 	IEnumerator CallPluginAtEndOfFrames()
 	{

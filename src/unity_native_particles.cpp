@@ -33,7 +33,7 @@ FP(void) UnityPluginLoad(IUnityInterfaces* unity_interfaces) {
 	unity.graphics->RegisterDeviceEventCallback(on_graphics_device_event);
 
 	AllocConsole();
-	SetConsoleTitle("FlexiParts");
+	SetConsoleTitle("Unity Native Particles");
 	freopen_s(&stream, "CONOUT$", "w", stdout);
 
 	if (!(renderer = new Renderer(static_cast<GLsizei>(particle_qty)))) {
@@ -60,7 +60,7 @@ FP(void) UnityPluginUnload() {
 	unity.graphics->UnregisterDeviceEventCallback(on_graphics_device_event);
 }
 
-#if UNITY_WEBGL
+#if UNITY_WEBGL // UNTESTED
 typedef void	(UNITY_INTERFACE_API * PluginLoadFunc)(IUnityInterfaces* unityInterfaces);
 typedef void	(UNITY_INTERFACE_API * PluginUnloadFunc)();
 extern "C" void	UnityRegisterRenderingPlugin(PluginLoadFunc loadPlugin, PluginUnloadFunc unloadPlugin);

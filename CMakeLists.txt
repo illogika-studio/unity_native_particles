@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(flexiparts)
+project(unity_native_particles)
 
 if (WIN32)
 	include(GenerateExportHeader)
@@ -9,7 +9,7 @@ if (WIN32)
 
 	file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c" "src/*.h" "src/*.hpp")
 
-	set(TARGET libflexiparts)
+	set(TARGET libnativeparticles)
 	add_library(${TARGET} SHARED ${SOURCES})
 #	GENERATE_EXPORT_HEADER(libflexiparts
 #		BASE_NAME flexiparts
@@ -26,7 +26,7 @@ if (WIN32)
 	add_custom_command(TARGET ${TARGET} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		$<TARGET_FILE:${TARGET}>
-		"${CMAKE_CURRENT_BINARY_DIR}/../flexi_parts_unity_project/Assets/Plugins/x86_64/${TARGET}.dll"
+		"${CMAKE_CURRENT_BINARY_DIR}/../unity_project/Assets/Plugins/x86_64/${TARGET}.dll"
 	)
 
 endif(WIN32)
