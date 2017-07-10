@@ -74,7 +74,7 @@ void Renderer::detroy_opengl() {
 }
 
 void Renderer::update(float time, float delta_time) {
-	OUTPUT_MSG("Updating");
+	//OUTPUT_MSG("Updating");
 	float r = 0.f;
 
 	/* Speed */
@@ -107,7 +107,7 @@ void Renderer::update(float time, float delta_time) {
 }
 
 void Renderer::render(float time, float delta_time) {
-	OUTPUT_MSG("Rendering");
+	//OUTPUT_MSG("Rendering");
 
 	/* Unity will drop VAO after 1-2 frames. After that we are fine. */
 	if (oglIsVertexArray(_vertex_array_id) == GL_FALSE) {
