@@ -6,12 +6,22 @@ Investigate and benchmark various optimizations to create a particle system tune
 
 ## Build
 
-To build, open CMakelist and point it to your Unity folder (currently C:/Program Files/Unity 5.5.1f).
+To build, open CMakelist.txt and point it to your Unity folder (currently C:/Program Files/Unity 5.5.1f).
 
 `mkdir build && cd build && cmake .. -G "Visual Studio 14 2015 Win64"`
 
 Open the generated solution in Visual Studio. When building in Visual Studio, make sure Unity is closed as a post-build process tries to copy the dll and Visual Studio will fail.
-Use the FlexiParts.cs script to interface with the library.
+Use the UnityNativeParticles.cs script to interface with the library.
+
+## Debugging
+
+Crucial, **crucial** to read this: https://msdn.microsoft.com/en-us/library/605a12zt.aspx
+
+Project Properties > Debugging.
+In Command, paste your Unity path : C:\Program Files\Unity 5.5.2f1\Editor\Unity.exe
+In Command Arguments, paste the projectPath command with the unity project path : -projectPath D:\illogika\unity_native_particles\unity_project
+
+**This has the added benefit of launching automatically Unity and the project when pressing "play" in Visual Studio.**
 
 ## Technical Details
 
